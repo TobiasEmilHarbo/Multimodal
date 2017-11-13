@@ -1,0 +1,12 @@
+{
+  "name": "Multimodal",
+  "version": "0.0.1",
+  "description": "Device input app",
+  "dependencies": {
+    "express": "^4.10.2",
+    "serialport": "^6.0.4",
+    "socket.io": "^2.0.4",
+    "nedb": "^1.8.0",
+    "pug": "^2.0.0-beta8"
+  }
+}

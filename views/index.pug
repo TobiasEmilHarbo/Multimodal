@@ -1,0 +1,57 @@
+html
+	head
+
+		meta(charset="utf-8")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0")
+		link(rel="shortcut icon" type="image/png" href="")
+
+		title Vibration recorder
+
+		script(src="/socket.io/socket.io.js")
+
+		style.
+			html{
+				font-family: Arial;
+			}
+
+	body
+		div
+			h1 hello
+			button(id="rec-btn") record
+	
+			button(id="playback-btn") Playback
+		script.
+
+			const socket = io();
+
+			window.led = 'ON';
+
+			document.getElementById('rec-btn')
+				.addEventListener('click', (event) =>
+				{
+					const button = event.target || event.srcElement;
+
+					if(button.recording)
+					{
+						button.innerHTML = 'record';
+						socket.emit('stop');
+						button.recording = false;
+					}
+					else
+					{
+						button.innerHTML = 'stop';
+						socket.emit('rec');
+						button.recording = true;
+					}
+					
+				});
+
+			document.getElementById('playback-btn')
+				.addEventListener('click', (event) =>
+				{
+					let data = {
+						led : window.led
+					};
+
+					socket.emit('playback', JSON.stringify(data));
+				});
