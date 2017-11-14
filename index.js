@@ -93,7 +93,7 @@ io.on('connection', (socket) =>
 				io.emit(ACTION.STOP_PLAYBACK);
 			}
 
-		}, 1000);
+		}, 100);
 
 	});
 
