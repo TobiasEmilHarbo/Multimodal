@@ -17,41 +17,63 @@ html
 	body
 		div
 			h1 hello
-			button(id="rec-btn") record
+			button(id="record-btn") record
 	
-			button(id="playback-btn") Playback
+			button(id="playback-btn") playback
 		script.
+
+			const ACTION = {
+				RECORD 			: '1',
+				STOP_RECORDING 	: '2',
+				PLAYBACK 		: '3',
+				STOP_PLAYBACK 	: '4',
+			}
 
 			const socket = io();
 
 			window.led = 'ON';
 
-			document.getElementById('rec-btn')
+			document.getElementById('record-btn')
 				.addEventListener('click', (event) =>
 				{
 					const button = event.target || event.srcElement;
 
 					if(button.recording)
 					{
+						socket.emit(ACTION.STOP_RECORDING);
 						button.innerHTML = 'record';
-						socket.emit('stop');
 						button.recording = false;
 					}
 					else
 					{
+						socket.emit(ACTION.RECORD);
 						button.innerHTML = 'stop';
-						socket.emit('rec');
 						button.recording = true;
 					}
-					
 				});
 
 			document.getElementById('playback-btn')
 				.addEventListener('click', (event) =>
 				{
-					let data = {
-						led : window.led
-					};
+					const button = event.target || event.srcElement;
 
-					socket.emit('playback', JSON.stringify(data));
+					if(button.playback)
+					{
+						socket.emit(ACTION.STOP_PLAYBACK);
+						button.innerHTML = 'playback';
+						button.playback = false;
+					}
+					else
+					{
+						socket.emit(ACTION.PLAYBACK);
+						button.innerHTML = 'stop';
+						button.playback = true;
+					}
 				});
+
+			socket.on(ACTION.STOP_PLAYBACK, function(data)
+			{
+				let button = document.getElementById('playback-btn');
+				button.innerHTML = 'playback';
+				button.playback = false;
+			});

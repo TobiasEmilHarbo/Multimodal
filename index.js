@@ -3,6 +3,13 @@ app.set('view engine', 'pug');
 
 var SerialPort = require('serialport');
 
+const ACTION = {
+	RECORD 			: '1',
+	STOP_RECORDING 	: '2',
+	PLAYBACK 		: '3',
+	STOP_PLAYBACK 	: '4',
+}
+
 const http = require('http').Server(app);
 
 const port = process.argv[2] || '8000'
@@ -16,50 +23,89 @@ const sp = new SerialPort(USBPort, {
 	baudRate: 9600
 });
 
+var playbackInterval;
+
 const Readline = SerialPort.parsers.Readline;
 const parser = sp.pipe(new Readline({ delimiter: '\r\n' }));
 
-parser.on('data', (data) =>
+const dataRecording = [300, 100, 300, 100, 300, 300];
+
+parser.on('data', (response) =>
 {
-	console.log(data);
-	// io.emit('arduino input', JSON.parse(input));
+	let res = JSON.parse(response);
+
+	dataRecording.push(res.data);
 });
 
 io.on('connection', (socket) =>
 {
-	// console.log('A browser window is connected');
-	
-	// socket.on('disconnect', () =>
-	// {
-	// 	console.log('Browser closed');
-	// });
-
-	socket.on('rec', () =>
+	socket.on(ACTION.RECORD, () =>
 	{
-		console.log('rec');
+		dataRecording.length = 0; //reset
+
+		let request = createRequest({
+				action : ACTION.RECORD,
+		});
+
+		sendDataToArduino(request);
 	});
 
-	socket.on('stop', () =>
+	socket.on(ACTION.STOP_RECORDING, () =>
 	{
-		console.log('stop');
+		console.log(dataRecording);
+
+		let request = createRequest({
+				action : ACTION.STOP_RECORDING,
+		});
+
+		sendDataToArduino(request);
+
 	});
 
-	socket.on('playback', (data) =>
+	socket.on(ACTION.PLAYBACK, (data) =>
 	{
-		for(var i = 0; i < data.length; i++)
+		let i = 0;
+
+		playbackInterval = setInterval(function()
 		{
-			sp.write(new Buffer(data[i], 'ascii'), (err, results) =>
+			let data = dataRecording[i];
+			if(data != undefined)
+			{			
+				let request = createRequest({
+						action : ACTION.PLAYBACK,
+						data : dataRecording[i]
+				});
+
+				sendDataToArduino(request);
+				
+				i++;
+			}
+			else
 			{
-				// console.log('Error: ' + err);
-				// console.log('Results ' + results);
-			});
-		}
+				clearInterval(playbackInterval);
 
-		sp.write(new Buffer('\n', 'ascii'), (err, results) =>
-		{
-			// console.log('err ' + err);
-			// console.log('results ' + results);
-		});	
+				let request = createRequest({
+						action : ACTION.STOP_PLAYBACK,
+				});
+
+				sendDataToArduino(request);
+
+				io.emit(ACTION.STOP_PLAYBACK);
+			}
+
+		}, 1000);
+
+	});
+
+	socket.on(ACTION.STOP_PLAYBACK, (data) =>
+	{
+		clearInterval(playbackInterval);
+
+		let request = createRequest({
+				action : ACTION.STOP_PLAYBACK,
+		});
+
+		sendDataToArduino(request);
 	});
 
 });
@@ -69,3 +115,26 @@ http.listen(port, () =>
 {
 	console.log('Server is up and running. Go to http://localhost:' + port + '/');
 });
+
+function sendDataToArduino(data)
+{
+	for(var i = 0; i < data.length; i++)
+	{
+		sp.write(new Buffer(data[i], 'ascii'), (err, results) =>
+		{
+			// console.log('Error: ' + err);
+			// console.log('Results ' + results);
+		});
+	}
+
+	sp.write(new Buffer('\n', 'ascii'), (err, results) =>
+	{
+		// console.log('err ' + err);
+		// console.log('results ' + results);
+	});
+}
+
+function createRequest(data)
+{
+	return JSON.stringify(data);
+}
