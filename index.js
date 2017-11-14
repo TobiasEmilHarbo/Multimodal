@@ -1,13 +1,17 @@
 const app = require('express')();
+const Database = require('./Database');
+const DB = new Database();
+
 app.set('view engine', 'pug');
 
 var SerialPort = require('serialport');
 
-const ACTION = {
+global.ACTION = {
 	RECORD 			: '1',
 	STOP_RECORDING 	: '2',
 	PLAYBACK 		: '3',
 	STOP_PLAYBACK 	: '4',
+	SUBMIT 			: '5',
 }
 
 const http = require('http').Server(app);
@@ -59,7 +63,6 @@ io.on('connection', (socket) =>
 		});
 
 		sendDataToArduino(request);
-
 	});
 
 	socket.on(ACTION.PLAYBACK, (data) =>
@@ -108,6 +111,17 @@ io.on('connection', (socket) =>
 		sendDataToArduino(request);
 	});
 
+	socket.on(ACTION.SUBMIT, (data) =>
+	{
+		var doc = {
+			amplitude : dataRecording
+		};
+
+		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)
+		{
+			console.log(doc);
+		});
+	});
 });
 
 
@@ -120,18 +134,10 @@ function sendDataToArduino(data)
 {
 	for(var i = 0; i < data.length; i++)
 	{
-		sp.write(new Buffer(data[i], 'ascii'), (err, results) =>
-		{
-			// console.log('Error: ' + err);
-			// console.log('Results ' + results);
-		});
+		sp.write(new Buffer(data[i], 'ascii'));
 	}
 
-	sp.write(new Buffer('\n', 'ascii'), (err, results) =>
-	{
-		// console.log('err ' + err);
-		// console.log('results ' + results);
-	});
+	sp.write(new Buffer('\n', 'ascii'));
 }
 
 function createRequest(data)

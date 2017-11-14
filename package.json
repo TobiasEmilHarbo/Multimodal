@@ -2,6 +2,10 @@
   "name": "Multimodal",
   "version": "0.0.1",
   "description": "Device input app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TobiasEmilHarbo/Multimodal.git"
+  },
   "dependencies": {
     "express": "^4.10.2",
     "serialport": "^6.0.4",

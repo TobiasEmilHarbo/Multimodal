@@ -18,16 +18,12 @@ html
 		div
 			h1 hello
 			button(id="record-btn") record
-	
 			button(id="playback-btn") playback
-		script.
+			button(id="submit-btn") submit
+			
+		script(type='text/javascript').
 
-			const ACTION = {
-				RECORD 			: '1',
-				STOP_RECORDING 	: '2',
-				PLAYBACK 		: '3',
-				STOP_PLAYBACK 	: '4',
-			}
+			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
 
 			const socket = io();
 
@@ -67,6 +63,12 @@ html
 						button.innerHTML = 'stop';
 						button.playback = true;
 					}
+				});
+
+			document.getElementById('submit-btn')
+				.addEventListener('click', (event) =>
+				{
+					socket.emit(ACTION.SUBMIT);
 				});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
