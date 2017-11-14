@@ -14,6 +14,11 @@ global.ACTION = {
 	SUBMIT 			: '5',
 }
 
+global.GESTURES = [
+	'ScMzIvxBSi4',
+	'NpEaa2P7qZI'
+];
+
 const http = require('http').Server(app);
 
 const port = process.argv[2] || '8000'
@@ -28,6 +33,7 @@ const sp = new SerialPort(USBPort, {
 });
 
 var playbackInterval;
+var participant = null;
 
 const Readline = SerialPort.parsers.Readline;
 const parser = sp.pipe(new Readline({ delimiter: '\r\n' }));
@@ -113,8 +119,11 @@ io.on('connection', (socket) =>
 
 	socket.on(ACTION.SUBMIT, (data) =>
 	{
+		console.log(data);
 		var doc = {
-			amplitude : dataRecording
+			amplitude 	: dataRecording,
+			gesture_id 	: data.id,
+			participant : participant
 		};
 
 		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)

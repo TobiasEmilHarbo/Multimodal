@@ -13,11 +13,16 @@ html
 			html{
 				font-family: Arial;
 			}
+
+			#video{
+				display: block;
+				margin: 0 auto;
+			}
 	body
 		div
 			h1 hello
 
-			<div id="ytplayer"></div>
+			<div id="video"></div>
 
 			button(id="record-btn") record
 			button(id="playback-btn") playback
@@ -26,6 +31,9 @@ html
 		script(type='text/javascript').
 
 			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
+			const gestures = !{ JSON.stringify(gestures) }; //get ACTION from server
+
+			var gestureId = 0;
 
 			const socket = io();
 
@@ -70,8 +78,13 @@ html
 			document.getElementById('submit-btn')
 				.addEventListener('click', (event) =>
 				{
-					//- socket.emit(ACTION.SUBMIT);
-					player.loadVideoById("NpEaa2P7qZI");
+					socket.emit(ACTION.SUBMIT, {
+						id : gestureId
+					});
+
+					gestureId++;
+					
+					player.loadVideoById(gestures[gestureId]);
 				});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
@@ -90,14 +103,14 @@ html
 			var player;
 			function onYouTubePlayerAPIReady()
 			{
-				player = new YT.Player('ytplayer', {
+				player = new YT.Player('video', {
 					height: '360',
 					width: '640',
 					playerVars: {
 						showinfo: 0,
 						rel : 0,
 					},
-					videoId: 'ScMzIvxBSi4'
+					videoId: gestures[gestureId]
 				});
 			}
 

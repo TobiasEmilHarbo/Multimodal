@@ -6,7 +6,8 @@ module.exports = function(app)
 	app.get('/', function(HTTPRequest, HTTPResponse)
 	{
 		HTTPResponse.render('index', {
-			ACTION : ACTION
+			ACTION : ACTION,
+			gestures : GESTURES
 		});
 	});
 
@@ -17,7 +18,7 @@ module.exports = function(app)
 		}, function(patterns)
 		{
 			HTTPResponse.render('analysis', {
-				patterns : patterns
+				patterns : patterns,
 			});
 		});
 	});
