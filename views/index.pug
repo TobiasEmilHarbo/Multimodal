@@ -13,10 +13,12 @@ html
 			html{
 				font-family: Arial;
 			}
-
 	body
 		div
 			h1 hello
+
+			<div id="ytplayer"></div>
+
 			button(id="record-btn") record
 			button(id="playback-btn") playback
 			button(id="submit-btn") submit
@@ -68,7 +70,8 @@ html
 			document.getElementById('submit-btn')
 				.addEventListener('click', (event) =>
 				{
-					socket.emit(ACTION.SUBMIT);
+					//- socket.emit(ACTION.SUBMIT);
+					player.loadVideoById("NpEaa2P7qZI");
 				});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
@@ -77,3 +80,24 @@ html
 				button.innerHTML = 'playback';
 				button.playback = false;
 			});
+
+				// Load the IFrame Player API code asynchronously.
+			var tag = document.createElement('script');
+			tag.src = "https://www.youtube.com/player_api";
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+			var player;
+			function onYouTubePlayerAPIReady()
+			{
+				player = new YT.Player('ytplayer', {
+					height: '360',
+					width: '640',
+					playerVars: {
+						showinfo: 0,
+						rel : 0,
+					},
+					videoId: 'ScMzIvxBSi4'
+				});
+			}
+

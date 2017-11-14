@@ -1,0 +1,42 @@
+html
+	head
+
+		meta(charset="utf-8")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0")
+		link(rel="shortcut icon" type="image/png" href="")
+
+		title Analysis
+
+		script(src="/socket.io/socket.io.js")
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js")
+
+		style.
+			html{
+				font-family: Arial;
+			}
+
+	body
+		div
+			h1 Analysis
+
+			<canvas id="myChart" width="400" height="400"></canvas>
+
+		script(type='text/javascript').
+
+			const patterns = !{ JSON.stringify(patterns) }; //get ACTION from server
+
+			let points = patterns[0]['amplitude'];
+
+			var ctx = document.getElementById("myChart").getContext('2d');
+				
+			let span = 20;
+			ctx.moveTo(0, points[0]);
+
+			for (i = 1; i < points.length - 2; i ++)
+			{
+				var xc = (i * span + ((i + 1) * span)) / 2;
+				var yc = (points[i] + points[i + 1]) / 2;
+				ctx.quadraticCurveTo(i * span, points[i], xc, yc);
+			}
+
+			ctx.stroke();

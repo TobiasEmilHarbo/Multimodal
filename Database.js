@@ -4,7 +4,7 @@ const Datastore = require('nedb');
  *				DATABASE CLASS 					*
 /************************************************/
 
-const DB_PREFIX = 'db_node';
+const DB_PREFIX = 'db';
 
 global.VIBRATION_PATTERN_COLLECTION = 'vibration_patterns';
 
@@ -14,7 +14,7 @@ module.exports = function()
 
 	constructor()
 	{
-	   db = new Datastore({ filename: './' + DB_PREFIX + '.js', autoload: true });
+	   db = new Datastore({ filename: './datastore/' + DB_PREFIX + '.js', autoload: true });
 	}
 
 	this.insert = function(collection, docs, callback)
@@ -31,13 +31,13 @@ module.exports = function()
 		});
 	};
 
-	// this.find = function(where, callback)
-	// {
-	// 	db.find(where, function (err, docs)
-	// 	{
-	// 		callback(docs);
-	// 	});
-	// };
+	this.find = function(where, callback)
+	{
+		db.find(where, function (err, docs)
+		{
+			callback(docs);
+		});
+	};
 
 	// this.remove = function (collection, id, where, callback)
 	// {
