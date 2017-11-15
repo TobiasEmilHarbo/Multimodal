@@ -29,9 +29,70 @@ html
 
 			div.recorder,
 			div.vibration{
+				display: block;
 				margin: 0 auto;
 				padding: 32px;
 				text-align: center;
+			}
+
+			div.vibration{
+				border-radius: 4px;
+				border: solid grey 1px;
+				margin: 16px auto;
+				width: 300px; 
+			}
+
+			div.recorder span.rec{
+				display: block;
+				width: 40px;
+				color: transparent;
+				height: 40px;
+				border-radius: 50%;
+				background: #f44242;
+				cursor: pointer;
+				box-shadow: 0 0 0 rgba(244, 66, 66, 0.4);
+				animation: pulse 2s infinite;
+				margin: 40px auto;
+			}
+
+			@-webkit-keyframes pulse {
+			  0% {
+			    -webkit-box-shadow: 0 0 0 0 rgba(244, 66, 66, 0.4);
+			  }
+			  70% {
+			      -webkit-box-shadow: 0 0 0 10px rgba(244, 66, 66, 0);
+			  }
+			  100% {
+			      -webkit-box-shadow: 0 0 0 0 rgba(244, 66, 66, 0);
+			  }
+			}
+			@keyframes pulse {
+			  0% {
+			    -moz-box-shadow: 0 0 0 0 rgba(244, 66, 66, 0.4);
+			    box-shadow: 0 0 0 0 rgba(244, 66, 66, 0.4);
+			  }
+			  70% {
+			      -moz-box-shadow: 0 0 0 10px rgba(244, 66, 66, 0);
+			      box-shadow: 0 0 0 10px rgba(244, 66, 66, 0);
+			  }
+			  100% {
+			      -moz-box-shadow: 0 0 0 0 rgba(244, 66, 66, 0);
+			      box-shadow: 0 0 0 0 rgba(244, 66, 66, 0);
+			  }
+			}
+
+			div.recorder div.vibration,
+			div.recorder span.rec{
+				display: none;
+			}
+
+
+			div.recorder[data-recording="true"] span.rec{
+				display: block;
+			}
+
+			div.recorder[data-recording="false"] div.vibration{
+				display: block;
 			}
 
 			button{
@@ -54,13 +115,17 @@ html
 
 			div(id="video")
 
-			div(class="recorder")
+			div(class="recorder", id="recorder")
 	
 				button(id="record-btn") Record
 
-			div(class="Vibration")
-				button(id="playback-btn") Playback
-				button(id="submit-btn") Submit
+				span(class="rec") rec
+
+				div(class="Vibration")
+
+					p Vibration
+					button(id="playback-btn") Playback
+					button(id="submit-btn") Submit
 			
 		script(type='text/javascript').
 
@@ -84,12 +149,18 @@ html
 						socket.emit(ACTION.STOP_RECORDING);
 						button.innerHTML = 'Record';
 						button.recording = false;
+
+						document.getElementsByClassName('recorder')[0]
+							.setAttribute('data-recording', false);
 					}
 					else
 					{
 						socket.emit(ACTION.RECORD);
 						button.innerHTML = 'Stop';
 						button.recording = true;
+
+						document.getElementsByClassName('recorder')[0]
+							.setAttribute('data-recording', true);
 					}
 				});
 
