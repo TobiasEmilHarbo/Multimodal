@@ -2,6 +2,7 @@
 #include "Adafruit_DRV2605.h"
 #include <ArduinoJson.h>
 
+const int RESET = 0;
 const int RECORD = 1;
 const int STOP_RECORDING = 2;
 const int PLAYBACK = 3;
@@ -10,7 +11,7 @@ const int SUBMIT = 5;
 const int CALIBRATE = 6;
 const int STOP_CALIBRATION = 7;
 
-int currentAction = STOP_RECORDING;
+int currentAction = RESET;
 
 int maxPressure = 0;
 int fsrAnalogPin = 9;
@@ -49,6 +50,11 @@ void loop()
         {
             inData.concat(received);
         }
+    }
+
+    if(currentAction == RESET)
+    {
+        maxPressure = 0;
     }
 
     if(currentAction == RECORD)

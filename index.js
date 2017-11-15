@@ -8,6 +8,7 @@ app.set('view engine', 'pug');
 var SerialPort = require('serialport');
 
 global.ACTION = {
+	RESET 				: '0',
 	RECORD 				: '1',
 	STOP_RECORDING 		: '2',
 	PLAYBACK 			: '3',
@@ -17,6 +18,7 @@ global.ACTION = {
 	STOP_CALIBRATION	: '7',
 	NEXT_GESTURE 		: '8',
 	SET_ORDER 			: '9',
+	DONE				: '10'
 }
 
 global.GESTURES = [
@@ -33,12 +35,13 @@ global.ORDERS = [
 	[1, 0, 2],
 	[1, 2, 0],
 	[2, 0, 1],
-	[2, 1, 0],	
+	[2, 1, 0],
 ]
 
 global.selectedOrder = 0;
+var orderIndexAdaptor = ORDERS[selectedOrder];
 
-var orderIndexAdaptor = [1,2,0];
+global.currentGestureIndex = 0;
 
 const http = require('http').Server(app);
 
@@ -73,7 +76,6 @@ io.on('connection', (socket) =>
 {
 	socket.on('disconnect', () =>
 	{
- 		console.log('Browser closed');
 		dataRecordings.length = 0; //reset
 	});
 
@@ -169,12 +171,11 @@ io.on('connection', (socket) =>
 
 	socket.on(ACTION.SUBMIT, (data) =>
 	{
-		console.log(dataRecordings.length);
 		if(dataRecordings.length < 1) return;
 
 		var doc = {
 			amplitude 		: dataRecordings,
-			gesture_id 		: GESTURES[data.id],
+			gesture_id 		: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
 			calibration_id 	: calibrationId,
 		};
 
@@ -185,18 +186,33 @@ io.on('connection', (socket) =>
 
 		dataRecordings.length = 0; //reset
 
-		io.emit(ACTION.NEXT_GESTURE);
+		currentGestureIndex++;
+
+		if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]])
+		{
+			reset();
+			io.emit(ACTION.DONE);
+			return;
+		}
+
+		io.emit(ACTION.NEXT_GESTURE, {
+			gesture : GESTURES[ORDERS[selectedOrder][currentGestureIndex]]
+		});
 	});
 
 	socket.on(ACTION.SET_ORDER, (data) =>
 	{
 		selectedOrder = data.order;
 		orderIndexAdaptor = ORDERS[selectedOrder];
-		
+
 		console.log(GESTURES[orderIndexAdaptor[0]]);
 	});
-});
 
+	socket.on(ACTION.RESET, (data) =>
+	{
+		reset();
+	});
+});
 
 http.listen(port, () =>
 {
@@ -216,4 +232,17 @@ function sendDataToArduino(data)
 function createRequest(data)
 {
 	return JSON.stringify(data);
+}
+
+function reset()
+{
+	currentGestureIndex = 0;
+	dataRecordings.length = 0; //reset
+	calibrationId = null;
+
+	let request = createRequest({
+			action : ACTION.RESET,
+	});
+
+	sendDataToArduino(request);
 }

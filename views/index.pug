@@ -15,12 +15,11 @@ html
 			}
 
 			header{
-				padding: 16px;
+				text-align: center;
 			}
 
-			header h1{
-				margin: 0 auto;
-				width: 300px;
+			header span{
+				font-weight: bold;
 			}
 
 			#video{
@@ -44,10 +43,13 @@ html
 			a(href="/calibrate") calibration
 			|  
 			a(href="/setup") setup
+			|  
+			a(href="#", id="reset") reset
 
 		div
 			header
 				h1 Vibration recorder
+				span #{ order.join(' - ') }
 
 			div(id="video")
 
@@ -69,8 +71,6 @@ html
 			document.getElementById('record-btn')
 				.addEventListener('click', (event) =>
 				{
-					if(gestureId > GESTURES.length) return;
-
 					const button = event.target || event.srcElement;
 
 					if(button.recording)
@@ -90,8 +90,6 @@ html
 			document.getElementById('playback-btn')
 				.addEventListener('click', (event) =>
 				{
-					if(gestureId > GESTURES.length) return;
-
 					const button = event.target || event.srcElement;
 
 					if(button.playback)
@@ -111,17 +109,20 @@ html
 			document.getElementById('submit-btn')
 				.addEventListener('click', (event) =>
 				{
-					if(gestureId > GESTURES.length) return;
+					event.preventDefault();
+					socket.emit(ACTION.SUBMIT);
+				});
 
-					socket.emit(ACTION.SUBMIT, {
-						id : gestureId
-					});
+			document.getElementById('reset')
+				.addEventListener('click', (event) =>
+				{
+					socket.emit(ACTION.RESET);
+					window.location.href = '/';
 				});
 
 			socket.on(ACTION.NEXT_GESTURE, function(data)
 			{
-				gestureId++;
-				player.cueVideoById(GESTURES[gestureId]);
+				player.cueVideoById(data.gesture);
 			});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
@@ -136,6 +137,11 @@ html
 				let button = document.getElementById('record-btn');
 				button.innerHTML = 'Record';
 				button.recording = false;
+			});
+
+			socket.on(ACTION.DONE, function(data)
+			{
+				window.location.href = '/thanks';
 			});
 
 			// Load the IFrame Player API code asynchronously.
@@ -155,7 +161,7 @@ html
 						autoplay : 0,
 						rel : 0,
 					},
-					videoId: GESTURES[gestureId]
+					videoId: '!{ currentGesture }'
 				});
 			}
 

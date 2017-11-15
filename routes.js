@@ -6,8 +6,9 @@ module.exports = function(app)
 	app.get('/', function(HTTPRequest, HTTPResponse)
 	{
 		HTTPResponse.render('index', {
-			ACTION : ACTION,
-			gestures : GESTURES
+			ACTION 			: ACTION,
+			currentGesture 	: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
+			order 			: ORDERS[selectedOrder]
 		});
 	});
 
@@ -36,5 +37,10 @@ module.exports = function(app)
 			orders : ORDERS,
 			selectedOrder : selectedOrder
 		});
+	});
+
+	app.get('/thanks', function(HTTPRequest, HTTPResponse)
+	{
+		HTTPResponse.render('thanks');
 	});
 };
