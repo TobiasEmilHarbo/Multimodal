@@ -75,6 +75,8 @@ io.on('connection', (socket) =>
 	{
 		let i = 0;
 
+		io.emit(ACTION.STOP_RECORDING);
+
 		playbackInterval = setInterval(function()
 		{
 			let data = dataRecording[i];
@@ -102,6 +104,7 @@ io.on('connection', (socket) =>
 				io.emit(ACTION.STOP_PLAYBACK);
 			}
 
+
 		}, 100);
 
 	});
@@ -119,7 +122,6 @@ io.on('connection', (socket) =>
 
 	socket.on(ACTION.SUBMIT, (data) =>
 	{
-		console.log(data);
 		var doc = {
 			amplitude 	: dataRecording,
 			gesture_id 	: data.id,
