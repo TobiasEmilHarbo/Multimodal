@@ -6,11 +6,13 @@ const int RECORD = 1;
 const int STOP_RECORDING = 2;
 const int PLAYBACK = 3;
 const int STOP_PLAYBACK = 4;
-
-
+const int SUBMIT = 5;
+const int CALIBRATE = 6;
+const int STOP_CALIBRATION = 7;
 
 int currentAction = STOP_RECORDING;
 
+int maxPressure = 0;
 int fsrAnalogPin = 9;
 int incomingByte = 0;
 String inData = "";
@@ -23,7 +25,8 @@ void setup()
 {
     Serial.begin(9600);
     drv.begin();
-    drv.useLRA();
+    //drv.useLRA();
+    drv.useERM();
 
     drv.setMode(DRV2605_MODE_REALTIME);
 }
@@ -52,13 +55,19 @@ void loop()
     {
         JsonObject& root = createJSONObject();
         int fsrReading = analogRead(fsrAnalogPin);
-        int amp = map(fsrReading, 0, 1023, 0, 128);
+        int amp = map(fsrReading, 0, maxPressure, 0, 128);
         root["data"] = amp;
 
         root.printTo(Serial);
         Serial.println();
 
         vibrate(amp);
+    }
+
+    if(currentAction == CALIBRATE)
+    {
+        int fsrReading = analogRead(fsrAnalogPin);
+        maxPressure = max(maxPressure, fsrReading);
     }
     
     delay(100);
@@ -84,6 +93,10 @@ void handleRequest(JsonObject& request)
 
         case STOP_PLAYBACK:
           stopVibration();
+          break;
+
+        case STOP_CALIBRATION:
+          
           break;
     }
 }

@@ -7,12 +7,13 @@ app.set('view engine', 'pug');
 var SerialPort = require('serialport');
 
 global.ACTION = {
-	RECORD 			: '1',
-	STOP_RECORDING 	: '2',
-	PLAYBACK 		: '3',
-	STOP_PLAYBACK 	: '4',
-	CALIBATION 		: '5',
-	SUBMIT 			: '6',
+	RECORD 				: '1',
+	STOP_RECORDING 		: '2',
+	PLAYBACK 			: '3',
+	STOP_PLAYBACK 		: '4',
+	SUBMIT 				: '5',
+	CALIBRATE 			: '6',
+	STOP_CALIBRATION	: '7',
 }
 
 global.GESTURES = [
@@ -117,6 +118,24 @@ io.on('connection', (socket) =>
 
 		let request = createRequest({
 				action : ACTION.STOP_PLAYBACK,
+		});
+
+		sendDataToArduino(request);
+	});
+
+	socket.on(ACTION.CALIBRATE, (data) =>
+	{
+		let request = createRequest({
+				action : ACTION.CALIBRATE,
+		});
+
+		sendDataToArduino(request);
+	});
+
+	socket.on(ACTION.STOP_CALIBRATION, (data) =>
+	{
+		let request = createRequest({
+				action : ACTION.STOP_CALIBRATION,
 		});
 
 		sendDataToArduino(request);

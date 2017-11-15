@@ -31,12 +31,11 @@ html
 			div.recorder{
 				margin: 0 auto;
 				padding: 32px;
-				width: 324px;
+				text-align: center;
 			}
 
 			div.recorder button{
-				padding: 8px;
-				width: 100px;
+				padding: 8px 16px;
 				font-size: 16px;
 				margin: 4px;
 			}
@@ -52,12 +51,13 @@ html
 				button(id="record-btn") Record
 				button(id="playback-btn") Playback
 				button(id="submit-btn") Submit
+				button(id="calibration-btn") Calibrate
 
 			
 		script(type='text/javascript').
 
 			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
-			const gestures = !{ JSON.stringify(gestures) }; //get ACTION from server
+			const GESTURES = !{ JSON.stringify(GESTURES) }; //get ACTION from server
 
 			var gestureId = 0;
 
@@ -66,7 +66,7 @@ html
 			document.getElementById('record-btn')
 				.addEventListener('click', (event) =>
 				{
-					if(gestureId > gestures.length) return;
+					if(gestureId > GESTURES.length) return;
 
 					const button = event.target || event.srcElement;
 
@@ -87,7 +87,7 @@ html
 			document.getElementById('playback-btn')
 				.addEventListener('click', (event) =>
 				{
-					if(gestureId > gestures.length) return;
+					if(gestureId > GESTURES.length) return;
 
 					const button = event.target || event.srcElement;
 
@@ -108,7 +108,7 @@ html
 			document.getElementById('submit-btn')
 				.addEventListener('click', (event) =>
 				{
-					if(gestureId > gestures.length) return;
+					if(gestureId > GESTURES.length) return;
 
 					socket.emit(ACTION.SUBMIT, {
 						id : gestureId
@@ -116,7 +116,26 @@ html
 
 					gestureId++;
 					
-					player.cueVideoById(gestures[gestureId]);
+					player.cueVideoById(GESTURES[gestureId]);
+				});
+
+			document.getElementById('calibration-btn')
+				.addEventListener('click', (event) =>
+				{
+					const button = event.target || event.srcElement;
+
+					if(button.calibrating)
+					{
+						socket.emit(ACTION.STOP_CALIBRATION);
+						button.innerHTML = 'Calibrate';
+						button.calibrating = false;
+					}
+					else
+					{
+						socket.emit(ACTION.CALIBRATE);
+						button.innerHTML = 'Ok';
+						button.calibrating = true;
+					}
 				});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
@@ -133,8 +152,7 @@ html
 				button.recording = false;
 			});
 
-
-				// Load the IFrame Player API code asynchronously.
+			// Load the IFrame Player API code asynchronously.
 			var tag = document.createElement('script');
 			tag.src = "https://www.youtube.com/player_api";
 			var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -151,7 +169,7 @@ html
 						autoplay : 0,
 						rel : 0,
 					},
-					videoId: gestures[gestureId]
+					videoId: GESTURES[gestureId]
 				});
 			}
 
