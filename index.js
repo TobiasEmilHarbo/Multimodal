@@ -7,6 +7,22 @@ app.set('view engine', 'pug');
 
 var SerialPort = require('serialport');
 
+const http = require('http').Server(app);
+
+const USBPort = process.argv[2] || 'COM12';
+const port = process.argv[3] || '8000'
+
+const io = require('socket.io')(http);
+
+require('./routes')(app);
+
+const sp = new SerialPort(USBPort, {
+	baudRate: 9600
+});
+
+const Readline = SerialPort.parsers.Readline;
+const parser = sp.pipe(new Readline({ delimiter: '\r\n' }));
+
 global.ACTION = {
 	RESET 				: '0',
 	RECORD 				: '1',
@@ -43,26 +59,10 @@ var orderIndexAdaptor = ORDERS[selectedOrder];
 
 global.currentGestureIndex = 0;
 
-const http = require('http').Server(app);
-
-const USBPort = process.argv[2] || 'COM12';
-const port = process.argv[3] || '8000'
-
-const io = require('socket.io')(http);
-
-require('./routes')(app);
-
-const sp = new SerialPort(USBPort, {
-	baudRate: 9600
-});
+global.dataRecordings = [];
+global.calibrationId = null;
 
 var playbackInterval;
-var calibrationId = null;
-
-const Readline = SerialPort.parsers.Readline;
-const parser = sp.pipe(new Readline({ delimiter: '\r\n' }));
-
-const dataRecordings = [];
 
 parser.on('data', (response) =>
 {
@@ -74,11 +74,6 @@ parser.on('data', (response) =>
 
 io.on('connection', (socket) =>
 {
-	socket.on('disconnect', () =>
-	{
-		dataRecordings.length = 0; //reset
-	});
-
 	socket.on(ACTION.RECORD, () =>
 	{
 		dataRecordings.length = 0; //reset
@@ -164,7 +159,7 @@ io.on('connection', (socket) =>
 				action : ACTION.STOP_CALIBRATION,
 		});
 
-		var calibrationId = shortid.generate();
+		calibrationId = shortid.generate();
 
 		sendDataToArduino(request);
 	});

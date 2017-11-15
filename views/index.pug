@@ -27,7 +27,8 @@ html
 				margin: 0 auto;
 			}
 
-			div.recorder{
+			div.recorder,
+			div.vibration{
 				margin: 0 auto;
 				padding: 32px;
 				text-align: center;
@@ -56,21 +57,26 @@ html
 			div(class="recorder")
 	
 				button(id="record-btn") Record
+
+			div(class="Vibration")
 				button(id="playback-btn") Playback
 				button(id="submit-btn") Submit
 			
 		script(type='text/javascript').
 
 			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
-			const GESTURES = !{ JSON.stringify(GESTURES) }; //get GEATURE IDS from server
-
-			var gestureId = 0;
-
+			const calibrated = !{ calibrated };
 			const socket = io();
 
 			document.getElementById('record-btn')
 				.addEventListener('click', (event) =>
 				{
+					if(!calibrated)
+					{
+						alert('You need to calibrate');
+						return;
+					} 
+
 					const button = event.target || event.srcElement;
 
 					if(button.recording)
