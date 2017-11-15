@@ -11,6 +11,7 @@ const int STOP_PLAYBACK = 4;
 
 int currentAction = STOP_RECORDING;
 
+int fsrAnalogPin = 9;
 int incomingByte = 0;
 String inData = "";
 const char endChar = '\n';
@@ -50,25 +51,17 @@ void loop()
     if(currentAction == RECORD)
     {
         JsonObject& root = createJSONObject();
-        root["data"] = random(128);
-        
+        int fsrReading = analogRead(fsrAnalogPin);
+        int amp = map(fsrReading, 0, 1023, 0, 128);
+        root["data"] = amp;
+
         root.printTo(Serial);
         Serial.println();
+
+        vibrate(amp);
     }
     
     delay(100);
-
-    /*for (int i = 0; i < 128; i+=10) {
-       drv.setRealtimeValue(i);
-       Serial.println(i);
-       delay(50);
-   }
-
-   for (int i = 128; i > 0; i-=10) {
-       drv.setRealtimeValue(i);
-       Serial.println(i);
-       delay(50);
-   }*/
 }
 
 void handleRequest(JsonObject& request)
@@ -97,15 +90,14 @@ void handleRequest(JsonObject& request)
 
 void vibrate(int amp)
 {
-    if(amp > 127)
-      TXLED1;
-    else if(amp <= 127)
-      TXLED0;
+    TXLED1;
+    drv.setRealtimeValue(amp);
 }
 
 void stopVibration()
 {
     TXLED0;
+    drv.setRealtimeValue(0);
 }
 
 JsonObject& stringToJSON(String s)

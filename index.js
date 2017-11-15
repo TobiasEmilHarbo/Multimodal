@@ -11,7 +11,8 @@ global.ACTION = {
 	STOP_RECORDING 	: '2',
 	PLAYBACK 		: '3',
 	STOP_PLAYBACK 	: '4',
-	SUBMIT 			: '5',
+	CALIBATION 		: '5',
+	SUBMIT 			: '6',
 }
 
 global.GESTURES = [
@@ -21,8 +22,8 @@ global.GESTURES = [
 
 const http = require('http').Server(app);
 
-const port = process.argv[2] || '8000'
-const USBPort = process.argv[3] || 'COM12';
+const USBPort = process.argv[2] || 'COM12';
+const port = process.argv[3] || '8000'
 
 const io = require('socket.io')(http);
 
@@ -38,20 +39,21 @@ var participant = null;
 const Readline = SerialPort.parsers.Readline;
 const parser = sp.pipe(new Readline({ delimiter: '\r\n' }));
 
-const dataRecording = [300, 100, 300, 100, 300, 300];
+const dataRecordings = [300, 100, 300, 100, 300, 300];
 
 parser.on('data', (response) =>
 {
 	let res = JSON.parse(response);
+	dataRecordings.push(res.data);
 
-	dataRecording.push(res.data);
+	console.log(res.data);
 });
 
 io.on('connection', (socket) =>
 {
 	socket.on(ACTION.RECORD, () =>
 	{
-		dataRecording.length = 0; //reset
+		dataRecordings.length = 0; //reset
 
 		let request = createRequest({
 				action : ACTION.RECORD,
@@ -62,7 +64,7 @@ io.on('connection', (socket) =>
 
 	socket.on(ACTION.STOP_RECORDING, () =>
 	{
-		console.log(dataRecording);
+		console.log(dataRecordings);
 
 		let request = createRequest({
 				action : ACTION.STOP_RECORDING,
@@ -79,12 +81,12 @@ io.on('connection', (socket) =>
 
 		playbackInterval = setInterval(function()
 		{
-			let data = dataRecording[i];
+			let data = dataRecordings[i];
 			if(data != undefined)
 			{			
 				let request = createRequest({
 						action : ACTION.PLAYBACK,
-						data : dataRecording[i]
+						data : dataRecordings[i]
 				});
 
 				sendDataToArduino(request);
@@ -123,7 +125,7 @@ io.on('connection', (socket) =>
 	socket.on(ACTION.SUBMIT, (data) =>
 	{
 		var doc = {
-			amplitude 	: dataRecording,
+			amplitude 	: dataRecordings,
 			gesture_id 	: data.id,
 			participant : participant
 		};
