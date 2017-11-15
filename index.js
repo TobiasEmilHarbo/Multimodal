@@ -25,18 +25,20 @@ global.GESTURES = [
 	'l2ANM2vULoQ'
 ];
 
+const orderDelim = ' - ';
+
 global.ORDERS = [
-	'0 - 1 - 2',
-	'0 - 2 - 1',
-	'1 - 0 - 2',
-	'1 - 2 - 0',
-	'2 - 0 - 1',
-	'2 - 1 - 0',
+	[0, 1, 2],
+	[0, 2, 1],
+	[1, 0, 2],
+	[1, 2, 0],
+	[2, 0, 1],
+	[2, 1, 0],	
 ]
 
 global.selectedOrder = 0;
 
-// console.log(ORDERS[data.order].split(' - '));
+var orderIndexAdaptor = [1,2,0];
 
 const http = require('http').Server(app);
 
@@ -189,6 +191,9 @@ io.on('connection', (socket) =>
 	socket.on(ACTION.SET_ORDER, (data) =>
 	{
 		selectedOrder = data.order;
+		orderIndexAdaptor = ORDERS[selectedOrder];
+		
+		console.log(GESTURES[orderIndexAdaptor[0]]);
 	});
 });
 

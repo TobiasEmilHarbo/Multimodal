@@ -39,6 +39,10 @@ html
 				padding: 8px;
 			}
 
+			a{
+				padding: 16px;
+			}
+
 	body
 		div(class="container")
 			h1 Setup
@@ -49,7 +53,11 @@ html
 
 				label(class="radio", for=index)
 					input(type="radio", name="order", id=index)
-					span #{ order }
+					span #{ order.join(' - ') }
+
+			br
+			br
+			br
 
 			a(href="/") Done
 
