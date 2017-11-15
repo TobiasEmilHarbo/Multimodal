@@ -34,7 +34,7 @@ html
 				text-align: center;
 			}
 
-			div.recorder button{
+			button{
 				padding: 8px 16px;
 				font-size: 16px;
 				margin: 4px;
@@ -51,13 +51,11 @@ html
 				button(id="record-btn") Record
 				button(id="playback-btn") Playback
 				button(id="submit-btn") Submit
-				button(id="calibration-btn") Calibrate
-
 			
 		script(type='text/javascript').
 
 			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
-			const GESTURES = !{ JSON.stringify(GESTURES) }; //get ACTION from server
+			const GESTURES = !{ JSON.stringify(GESTURES) }; //get GEATURE IDS from server
 
 			var gestureId = 0;
 
@@ -117,25 +115,6 @@ html
 					gestureId++;
 					
 					player.cueVideoById(GESTURES[gestureId]);
-				});
-
-			document.getElementById('calibration-btn')
-				.addEventListener('click', (event) =>
-				{
-					const button = event.target || event.srcElement;
-
-					if(button.calibrating)
-					{
-						socket.emit(ACTION.STOP_CALIBRATION);
-						button.innerHTML = 'Calibrate';
-						button.calibrating = false;
-					}
-					else
-					{
-						socket.emit(ACTION.CALIBRATE);
-						button.innerHTML = 'Ok';
-						button.calibrating = true;
-					}
 				});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)

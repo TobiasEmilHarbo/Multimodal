@@ -22,4 +22,11 @@ module.exports = function(app)
 			});
 		});
 	});
+
+	app.get('/calibrate', function(HTTPRequest, HTTPResponse)
+	{
+		HTTPResponse.render('calibration', {
+			ACTION : ACTION,
+		});
+	});
 };
