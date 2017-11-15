@@ -178,9 +178,9 @@ io.on('connection', (socket) =>
 		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)
 		{
 			console.log(doc);
+			dataRecordings.length = 0; //reset
 		});
 
-		dataRecordings.length = 0; //reset
 
 		currentGestureIndex++;
 

@@ -91,6 +91,7 @@ void handleRequest(JsonObject& request)
         
         case STOP_RECORDING:
           TXLED0;
+          stopVibration();
           break;
 
         case PLAYBACK:

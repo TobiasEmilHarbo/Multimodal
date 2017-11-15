@@ -36,10 +36,11 @@ html
 			}
 
 			div.vibration{
-				border-radius: 4px;
-				border: solid grey 1px;
+				border-radius: 2px;
+				border: solid lightgrey 1px;
 				margin: 16px auto;
-				width: 300px; 
+				width: 250px; 
+				padding-top: 0;
 			}
 
 			div.recorder span.rec{
@@ -147,7 +148,7 @@ html
 					if(button.recording)
 					{
 						socket.emit(ACTION.STOP_RECORDING);
-						button.innerHTML = 'Record';
+						button.innerHTML = 'Re-record';
 						button.recording = false;
 
 						document.getElementsByClassName('recorder')[0]
