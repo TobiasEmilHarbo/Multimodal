@@ -159,6 +159,7 @@ io.on('connection', (socket) =>
 				action : ACTION.STOP_CALIBRATION,
 		});
 
+		dataRecordings.length = 0; //reset
 		calibrationId = shortid.generate();
 
 		sendDataToArduino(request);
