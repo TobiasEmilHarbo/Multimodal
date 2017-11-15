@@ -1,4 +1,5 @@
 const app = require('express')();
+const shortid = require('shortid');
 const Database = require('./Database');
 const DB = new Database();
 
@@ -14,12 +15,28 @@ global.ACTION = {
 	SUBMIT 				: '5',
 	CALIBRATE 			: '6',
 	STOP_CALIBRATION	: '7',
+	NEXT_GESTURE 		: '8',
+	SET_ORDER 			: '9',
 }
 
 global.GESTURES = [
 	'ScMzIvxBSi4',
-	'NpEaa2P7qZI'
+	'0pXYp72dwl0',
+	'l2ANM2vULoQ'
 ];
+
+global.ORDERS = [
+	'0 - 1 - 2',
+	'0 - 2 - 1',
+	'1 - 0 - 2',
+	'1 - 2 - 0',
+	'2 - 0 - 1',
+	'2 - 1 - 0',
+]
+
+global.selectedOrder = 0;
+
+// console.log(ORDERS[data.order].split(' - '));
 
 const http = require('http').Server(app);
 
@@ -35,12 +52,12 @@ const sp = new SerialPort(USBPort, {
 });
 
 var playbackInterval;
-var participant = null;
+var calibrationId = null;
 
 const Readline = SerialPort.parsers.Readline;
 const parser = sp.pipe(new Readline({ delimiter: '\r\n' }));
 
-const dataRecordings = [300, 100, 300, 100, 300, 300];
+const dataRecordings = [];
 
 parser.on('data', (response) =>
 {
@@ -52,6 +69,12 @@ parser.on('data', (response) =>
 
 io.on('connection', (socket) =>
 {
+	socket.on('disconnect', () =>
+	{
+ 		console.log('Browser closed');
+		dataRecordings.length = 0; //reset
+	});
+
 	socket.on(ACTION.RECORD, () =>
 	{
 		dataRecordings.length = 0; //reset
@@ -107,7 +130,6 @@ io.on('connection', (socket) =>
 				io.emit(ACTION.STOP_PLAYBACK);
 			}
 
-
 		}, 100);
 
 	});
@@ -138,21 +160,35 @@ io.on('connection', (socket) =>
 				action : ACTION.STOP_CALIBRATION,
 		});
 
+		var calibrationId = shortid.generate();
+
 		sendDataToArduino(request);
 	});
 
 	socket.on(ACTION.SUBMIT, (data) =>
 	{
+		console.log(dataRecordings.length);
+		if(dataRecordings.length < 1) return;
+
 		var doc = {
-			amplitude 	: dataRecordings,
-			gesture_id 	: data.id,
-			participant : participant
+			amplitude 		: dataRecordings,
+			gesture_id 		: GESTURES[data.id],
+			calibration_id 	: calibrationId,
 		};
 
 		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)
 		{
 			console.log(doc);
 		});
+
+		dataRecordings.length = 0; //reset
+
+		io.emit(ACTION.NEXT_GESTURE);
+	});
+
+	socket.on(ACTION.SET_ORDER, (data) =>
+	{
+		selectedOrder = data.order;
 	});
 });
 

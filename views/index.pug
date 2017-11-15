@@ -111,11 +111,13 @@ html
 					socket.emit(ACTION.SUBMIT, {
 						id : gestureId
 					});
-
-					gestureId++;
-					
-					player.cueVideoById(GESTURES[gestureId]);
 				});
+
+			socket.on(ACTION.NEXT_GESTURE, function(data)
+			{
+				gestureId++;
+				player.cueVideoById(GESTURES[gestureId]);
+			});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
 			{

@@ -29,4 +29,12 @@ module.exports = function(app)
 			ACTION : ACTION,
 		});
 	});
+
+	app.get('/setup', function(HTTPRequest, HTTPResponse)
+	{
+		HTTPResponse.render('setup', {
+			orders : ORDERS,
+			selectedOrder : selectedOrder
+		});
+	});
 };
