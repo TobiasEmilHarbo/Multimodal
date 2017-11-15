@@ -25,3 +25,4 @@
 {"amplitude":[],"gesture_id":0,"participant":null,"collection":"vibration_patterns","_id":"w8RifKvxdXFRC3K0"}
 {"amplitude":[0,0,0,0,0,0,0,0],"gesture_id":0,"participant":null,"collection":"vibration_patterns","_id":"wcFYzeWfFNGxXdBR"}
 {"amplitude":[],"gesture_id":"0pXYp72dwl0","calibration_id":null,"collection":"vibration_patterns","_id":"ykoyKsWx8L2XZmng"}
+{"amplitude":[],"gesture_id":"0pXYp72dwl0","calibration_id":"rk_k1l9yM","collection":"vibration_patterns","_id":"p1wRFp9IwKbWrbO4"}
