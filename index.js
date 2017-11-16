@@ -92,6 +92,10 @@ io.on('connection', (socket) =>
 		});
 
 		sendDataToArduino(request);
+
+		trimDataRecording();
+
+		console.log(dataRecordings);
 	});
 
 	socket.on(ACTION.PLAYBACK, (data) =>
@@ -237,4 +241,23 @@ function reset()
 	});
 
 	sendDataToArduino(request);
+}
+
+function trimDataRecording()
+{
+	var spliceCount = 0;
+
+	for (var i = 0; i < dataRecordings.length; i++)
+	{
+		if(dataRecordings[i] == 0) spliceCount++;
+		else break;
+	}
+
+	dataRecordings.splice(0, spliceCount);
+
+	for (var i = dataRecordings.length - 1; i >= 0; i--)
+	{
+		if(dataRecordings[i] == 0) dataRecordings.pop();
+		else break;
+	}
 }
