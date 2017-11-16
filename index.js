@@ -34,7 +34,7 @@ global.ACTION = {
 	STOP_CALIBRATION	: '7',
 	NEXT_GESTURE 		: '8',
 	SET_ORDER 			: '9',
-	DONE				: '10'
+	DONE				: '10',
 }
 
 global.GESTURES = [
