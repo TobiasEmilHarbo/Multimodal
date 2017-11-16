@@ -180,20 +180,19 @@ io.on('connection', (socket) =>
 		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)
 		{
 			console.log(doc);
-			dataRecordings.length = 0; //reset
-		});
 
-		currentGestureIndex++;
+			currentGestureIndex++;
 
-		if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]])
-		{
-			reset();
-			io.emit(ACTION.DONE);
-			return;
-		}
+			if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]])
+			{
+				reset();
+				io.emit(ACTION.DONE);
+				return;
+			}
 
-		io.emit(ACTION.NEXT_GESTURE, {
-			gesture : GESTURES[ORDERS[selectedOrder][currentGestureIndex]]
+			io.emit(ACTION.NEXT_GESTURE, {
+				gesture : GESTURES[ORDERS[selectedOrder][currentGestureIndex]]
+			});
 		});
 	});
 
