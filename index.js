@@ -131,7 +131,7 @@ io.on('connection', (socket) =>
 				io.emit(ACTION.STOP_PLAYBACK);
 			}
 
-		}, 100);
+		}, 80);
 
 	});
 
@@ -172,9 +172,9 @@ io.on('connection', (socket) =>
 		if(dataRecordings.length < 1) return;
 
 		var doc = {
-			amplitude 		: dataRecordings,
 			gesture_id 		: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
 			calibration_id 	: calibrationId,
+			amplitude 		: dataRecordings,
 		};
 
 		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)
@@ -182,7 +182,6 @@ io.on('connection', (socket) =>
 			console.log(doc);
 			dataRecordings.length = 0; //reset
 		});
-
 
 		currentGestureIndex++;
 

@@ -61,8 +61,9 @@ void loop()
     {
         JsonObject& root = createJSONObject();
         int fsrReading = analogRead(fsrAnalogPin);
-        int amp = map(fsrReading, 0, maxPressure, 0, 128);
-        root["data"] = amp;
+        int amp = map(fsrReading, 0, maxPressure, 0, 127);
+        
+        root["data"] = min(amp, 127);
 
         root.printTo(Serial);
         Serial.println();
@@ -76,7 +77,7 @@ void loop()
         maxPressure = max(maxPressure, fsrReading);
     }
     
-    delay(100);
+    delay(80);
 }
 
 void handleRequest(JsonObject& request)
