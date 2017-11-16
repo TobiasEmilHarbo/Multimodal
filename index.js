@@ -87,8 +87,6 @@ io.on('connection', (socket) =>
 
 	socket.on(ACTION.STOP_RECORDING, () =>
 	{
-		console.log(dataRecordings);
-
 		let request = createRequest({
 				action : ACTION.STOP_RECORDING,
 		});
@@ -200,8 +198,6 @@ io.on('connection', (socket) =>
 	{
 		selectedOrder = data.order;
 		orderIndexAdaptor = ORDERS[selectedOrder];
-
-		console.log(GESTURES[orderIndexAdaptor[0]]);
 	});
 
 	socket.on(ACTION.RESET, (data) =>

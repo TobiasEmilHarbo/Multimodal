@@ -132,6 +132,14 @@ html
 
 			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
 			const calibrated = !{ calibrated };
+			const recording = !{ recording };
+
+			if(recording)
+			{
+				document.getElementsByClassName('recorder')[0]
+					.setAttribute('data-recording', false);
+			}
+
 			const socket = io();
 
 			document.getElementById('record-btn')
@@ -148,7 +156,7 @@ html
 					if(button.recording)
 					{
 						socket.emit(ACTION.STOP_RECORDING);
-						button.innerHTML = 'Re-record';
+						button.innerHTML = 'Record';
 						button.recording = false;
 
 						document.getElementsByClassName('recorder')[0]
@@ -201,6 +209,8 @@ html
 			socket.on(ACTION.NEXT_GESTURE, function(data)
 			{
 				player.cueVideoById(data.gesture);
+				document.getElementsByClassName('recorder')[0]
+							.removeAttribute('data-recording');
 			});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
