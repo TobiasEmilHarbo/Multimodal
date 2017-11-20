@@ -26,8 +26,8 @@ void setup()
 {
     Serial.begin(9600);
     drv.begin();
-    //drv.useLRA();
-    drv.useERM();
+    drv.useLRA();
+    //drv.useERM();
 
     drv.setMode(DRV2605_MODE_REALTIME);
 }
@@ -61,9 +61,9 @@ void loop()
     {
         JsonObject& root = createJSONObject();
         int fsrReading = analogRead(fsrAnalogPin);
-        int amp = map(fsrReading, 0, maxPressure, 0, 127);
+        int amp = map(min(fsrReading, maxPressure), 0, maxPressure, 0, 127);
         
-        root["data"] = min(amp, 127);
+        root["data"] = amp;
 
         root.printTo(Serial);
         Serial.println();

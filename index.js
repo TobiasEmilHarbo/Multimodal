@@ -43,7 +43,6 @@ global.GESTURES = [
 	'l2ANM2vULoQ'
 ];
 
-const orderDelim = ' - ';
 
 global.ORDERS = [
 	[0, 1, 2],
@@ -52,7 +51,10 @@ global.ORDERS = [
 	[1, 2, 0],
 	[2, 0, 1],
 	[2, 1, 0],
-]
+];
+
+const orderDelim = ' - ';
+const timePeriod = 80;
 
 global.selectedOrder = 0;
 var orderIndexAdaptor = ORDERS[selectedOrder];
@@ -131,7 +133,7 @@ io.on('connection', (socket) =>
 				io.emit(ACTION.STOP_PLAYBACK);
 			}
 
-		}, 80);
+		}, timePeriod);
 
 	});
 
@@ -171,13 +173,15 @@ io.on('connection', (socket) =>
 	{
 		if(dataRecordings.length < 1) return;
 
-		var doc = {
+		var doc = [{
 			gesture_id 		: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
+			order 			: ORDERS[selectedOrder],
 			calibration_id 	: calibrationId,
-			amplitude 		: dataRecordings,
-		};
+			perdiod 		: timePeriod,
+			amplitudes 		: dataRecordings,
+		}];
 
-		DB.insert(VIBRATION_PATTERN_COLLECTION, [doc], function(err, doc)
+		DB.insert(VIBRATION_PATTERN_COLLECTION, doc, function(err, doc)
 		{
 			console.log(doc);
 
