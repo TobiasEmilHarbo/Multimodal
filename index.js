@@ -38,11 +38,10 @@ global.ACTION = {
 }
 
 global.GESTURES = [
-	'ScMzIvxBSi4',
-	'0pXYp72dwl0',
-	'l2ANM2vULoQ'
+	'cGCFyLX7cLo',
+	'yjX5V7oiPhk',
+	'nMceTIUaZzU'
 ];
-
 
 global.ORDERS = [
 	[0, 1, 2],
