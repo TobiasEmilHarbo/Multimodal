@@ -251,6 +251,12 @@ html
 						autoplay : 0,
 						rel : 0,
 					},
+					events: {
+						onReady : function(e)
+						{
+							//- e.target.setPlaybackRate(1.5);
+						},
+					},
 					videoId: '!{ currentGesture }'
 				});
 			}

@@ -165,6 +165,8 @@ io.on('connection', (socket) =>
 		dataRecordings.length = 0; //reset
 		calibrationId = shortid.generate();
 
+		console.log('Calibration ID: '+ calibrationId);
+
 		sendDataToArduino(request);
 	});
 
@@ -176,7 +178,7 @@ io.on('connection', (socket) =>
 			gesture_id 		: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
 			order 			: ORDERS[selectedOrder],
 			calibration_id 	: calibrationId,
-			perdiod 		: timePeriod,
+			period 			: timePeriod,
 			amplitudes 		: dataRecordings,
 		}];
 
