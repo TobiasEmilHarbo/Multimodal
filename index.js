@@ -2,6 +2,7 @@ const app = require('express')();
 const shortid = require('shortid');
 const Database = require('./Database');
 const DB = new Database();
+const fs = require('fs');
 
 app.set('view engine', 'pug');
 
@@ -35,6 +36,7 @@ global.ACTION = {
 	NEXT_GESTURE 		: '8',
 	SET_ORDER 			: '9',
 	DONE				: '10',
+	CREATE_DATA_FILES	: '11',
 }
 
 global.GESTURES = [
@@ -211,6 +213,11 @@ io.on('connection', (socket) =>
 	{
 		reset();
 	});
+
+	socket.on(ACTION.CREATE_DATA_FILES, (data) =>
+	{
+		createFiles(0);
+	});
 });
 
 http.listen(port, () =>
@@ -263,4 +270,78 @@ function trimDataRecording()
 		if(dataRecordings[i] == 0) dataRecordings.pop();
 		else break;
 	}
+}
+
+function createFiles(gestureCount)
+{
+	var gesture = GESTURES[gestureCount];
+
+	DB.find({
+		collection : VIBRATION_PATTERN_COLLECTION,
+		gesture_id : gesture
+	},
+	function(patterns)
+	{
+		var csvStream = fs.createWriteStream('data/' + gesture + '.csv');
+		var datStream = fs.createWriteStream('data/' + gesture + '.dat');
+
+		var patternMaxLength = 0;
+
+		for (var i = 0; i < patterns.length; i++)
+		{
+			if(patternMaxLength < patterns[i].amplitudes.length) patternMaxLength = patterns[i].amplitudes.length;
+		}
+
+		csvStream.once('open', function(fd)
+		{
+			var header = 'gesture_id,calibration_id';
+
+			for (var i = 0; i < patternMaxLength; i++)
+			{
+				header += ',' + (60*i);
+			}
+
+			csvStream.write(header + "\n");
+
+			for (var i = 0; i < patterns.length; i++)
+			{
+				let pattern = patterns[i];
+				csvStream.write(pattern.gesture_id + ',' + pattern.calibration_id + ',' + pattern.amplitudes.join() + "\n");
+			}
+
+			csvStream.end();
+		});
+
+		datStream.once('open', function(fd)
+		{
+			var header = '';
+		
+			for (var i = 0; i < patterns.length; i++)
+			{
+				var pattern = patterns[i];
+
+				header += pattern.calibration_id + '	';
+			}
+		
+			datStream.write(header + "\n");
+
+			for (var i = 0; i < patternMaxLength; i++)
+			{
+				var row = '';
+				for (var j = 0; j < patterns.length; j++)
+				{
+					var pattern = patterns[j];
+		
+					if(pattern.amplitudes[i] != undefined)
+						row += pattern.amplitudes[i] + '	'
+				}
+
+				datStream.write(row + "\n");
+			}
+
+			datStream.end();
+		});
+
+		if(GESTURES.length-1 > gestureCount) createFiles(gestureCount+1);
+	});
 }

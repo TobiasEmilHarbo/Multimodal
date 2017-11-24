@@ -16,27 +16,64 @@ html
 			}
 
 	body
-		div
-			h1 Analysis
+		h1 Analysis
 
-			<canvas id="myChart" width="400" height="400"></canvas>
+		button(id="create-files-btn") Create CSV files
+
+		//- canvas(id="myChart",width="400",height="400")
 
 		script(type='text/javascript').
 
-			const patterns = !{ JSON.stringify(patterns) }; //get ACTION from server
+			const socket = io();
+			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
 
-			let points = patterns[0]['amplitude'];
+			//- const patterns = !{ JSON.stringify(patterns) }; //get ACTION from server
 
-			var ctx = document.getElementById("myChart").getContext('2d');
+			document.getElementById('create-files-btn')
+				.addEventListener('click', (event) =>
+				{
+					socket.emit(ACTION.CREATE_DATA_FILES);
+				});
+
+			//- let points = patterns[0]['amplitude'];
+
+			//- var ctx = document.getElementById("myChart").getContext('2d');
 				
-			let span = 20;
-			ctx.moveTo(0, points[0]);
+			//- let span = 20;
+			//- ctx.moveTo(0, points[0]);
 
-			for (i = 1; i < points.length - 2; i ++)
-			{
-				var xc = (i * span + ((i + 1) * span)) / 2;
-				var yc = (points[i] + points[i + 1]) / 2;
-				ctx.quadraticCurveTo(i * span, points[i], xc, yc);
-			}
+			//- for (i = 1; i < points.length - 2; i ++)
+			//- {
+			//- 	var xc = (i * span + ((i + 1) * span)) / 2;
+			//- 	var yc = (points[i] + points[i + 1]) / 2;
+			//- 	ctx.quadraticCurveTo(i * span, points[i], xc, yc);
+			//- }
 
-			ctx.stroke();
+			//- ctx.stroke();
+
+			//- var patternMaxLength = 0;
+
+			//- for (var i = 0; i < patterns.length; i++)
+			//- {
+			//- 	if(patternMaxLength < patterns[i].amplitudes.length) patternMaxLength = patterns[i].amplitudes.length;
+			//- }
+			
+			//- console.log(patternMaxLength);
+
+			//- var header = 'gesture_id,calibration_id';
+
+			//- for (var i = 0; i < patternMaxLength; i++)
+			//- {
+			//- 	header += ',' + (60*i);
+			//- }
+
+			//- console.log(header);
+
+			//- for (var i = 0; i < patterns.length; i++)
+			//- {
+			//- 	let pattern = patterns[i];
+			//- 	console.log(pattern.gesture_id + ', ' + pattern.calibration_id + ',' + pattern.amplitudes.join());
+			//- }
+
+
+

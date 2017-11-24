@@ -16,13 +16,9 @@ module.exports = function(app)
 
 	app.get('/analysis', function(HTTPRequest, HTTPResponse)
 	{
-		DB.find({
-			collection : VIBRATION_PATTERN_COLLECTION
-		}, function(patterns)
-		{
-			HTTPResponse.render('analysis', {
-				patterns : patterns,
-			});
+		HTTPResponse.render('analysis', {
+			ACTION 	: ACTION,
+			// patterns : patterns,
 		});
 	});
 
