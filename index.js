@@ -306,6 +306,13 @@ function createFiles(gestureCount)
 		{
 			var header = 'gesture_id,calibration_id';
 
+			patterns.sort(function(a,b)
+			{
+				if(a.amplitudes.length > b.amplitudes.length) return -1;
+				if(a.amplitudes.length < b.amplitudes.length) return 1;
+				return 0;
+			});
+
 			for (var i = 0; i < patternMaxLength; i++)
 			{
 				header += ',' + (60*i);
