@@ -316,7 +316,11 @@ function createFiles(gestureCount)
 			for (var i = 0; i < patterns.length; i++)
 			{
 				let pattern = patterns[i];
-				csvStream.write(pattern.gesture_id + ',' + pattern.calibration_id + ',' + pattern.amplitudes.join() + "\n");
+				let amps = pattern.amplitudes;
+
+				let tail = (amps[amps.length-1] != 0) ? ',0' : '';
+
+				csvStream.write(pattern.gesture_id + ',' + pattern.calibration_id + ',' + amps.join() + tail + "\n");
 			}
 
 			csvStream.end();
@@ -326,6 +330,15 @@ function createFiles(gestureCount)
 		{
 			var header = '';
 		
+			// patterns.length = 2
+
+			patterns.sort(function(a,b)
+			{
+				if(a.amplitudes.length > b.amplitudes.length) return -1;
+				if(a.amplitudes.length < b.amplitudes.length) return 1;
+				return 0;
+			});
+
 			for (var i = 0; i < patterns.length; i++)
 			{
 				var pattern = patterns[i];
@@ -335,15 +348,19 @@ function createFiles(gestureCount)
 		
 			datStream.write(header.trim() + "\n");
 
-			for (var i = 0; i < patternMaxLength; i++)
+			for (var i = 0; i < patternMaxLength+1; i++)
 			{
 				var row = '';
+
 				for (var j = 0; j < patterns.length; j++)
 				{
 					var pattern = patterns[j];
 		
 					if(pattern.amplitudes[i] != undefined)
 						row += pattern.amplitudes[i] + '	';
+
+					else if(i < pattern.amplitudes.length+1 && pattern.amplitudes[i-1] != 0)
+						row += '0	';
 				}
 
 				datStream.write(row.trim() + "\n");
