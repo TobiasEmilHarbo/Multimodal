@@ -18,7 +18,16 @@ const io = require('socket.io')(http);
 require('./routes')(app);
 
 const sp = new SerialPort(USBPort, {
-	baudRate: 9600
+	baudRate: 9600,
+	autoOpen: false
+});
+
+sp.open(function (err)
+{
+	if (err)
+	{
+		console.log('Error connecting to device: ', err.message);
+	}
 });
 
 const Readline = SerialPort.parsers.Readline;
@@ -66,6 +75,7 @@ global.dataRecordings = [];
 global.calibrationId = null;
 
 var playbackInterval;
+
 
 parser.on('data', (response) =>
 {
@@ -333,15 +343,16 @@ function createFiles(gestureCount)
 					var pattern = patterns[j];
 		
 					if(pattern.amplitudes[i] != undefined)
-						row += pattern.amplitudes[i] + '	'
+						row += pattern.amplitudes[i] + '	';
 				}
 
-				datStream.write(row + "\n");
+				datStream.write(row.trim() + "\n");
 			}
 
 			datStream.end();
 		});
 
+		//recursive call
 		if(GESTURES.length-1 > gestureCount) createFiles(gestureCount+1);
 	});
 }
