@@ -333,7 +333,7 @@ function createFiles(gestureCount)
 				header += pattern.calibration_id + '	';
 			}
 		
-			datStream.write(header + "\n");
+			datStream.write(header.trim() + "\n");
 
 			for (var i = 0; i < patternMaxLength; i++)
 			{
