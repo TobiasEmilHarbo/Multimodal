@@ -295,27 +295,22 @@ function createFiles(gestureCount)
 		var csvStream = fs.createWriteStream('data/' + gesture + '.csv');
 		var datStream = fs.createWriteStream('data/' + gesture + '.dat');
 
-		var patternMaxLength = 0;
-
-		for (var i = 0; i < patterns.length; i++)
+		patterns.sort(function(a,b)
 		{
-			if(patternMaxLength < patterns[i].amplitudes.length) patternMaxLength = patterns[i].amplitudes.length;
-		}
+			if(a.amplitudes.length > b.amplitudes.length) return -1;
+			if(a.amplitudes.length < b.amplitudes.length) return 1;
+			return 0;
+		});
+
+		var patternMaxLength = patterns[0].amplitudes.length;
 
 		csvStream.once('open', function(fd)
 		{
 			var header = 'gesture_id,calibration_id';
 
-			patterns.sort(function(a,b)
-			{
-				if(a.amplitudes.length > b.amplitudes.length) return -1;
-				if(a.amplitudes.length < b.amplitudes.length) return 1;
-				return 0;
-			});
-
 			for (var i = 0; i < patternMaxLength; i++)
 			{
-				header += ',' + (60*i);
+				header += ',' + (patterns[0].period*i);
 			}
 
 			csvStream.write(header + "\n");
@@ -338,13 +333,6 @@ function createFiles(gestureCount)
 			var header = '';
 		
 			// patterns.length = 2
-
-			patterns.sort(function(a,b)
-			{
-				if(a.amplitudes.length > b.amplitudes.length) return -1;
-				if(a.amplitudes.length < b.amplitudes.length) return 1;
-				return 0;
-			});
 
 			for (var i = 0; i < patterns.length; i++)
 			{
