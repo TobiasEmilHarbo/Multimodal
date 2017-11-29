@@ -214,11 +214,14 @@ http.listen(port, () =>
 
 function playback(recordings)
 {
-	let i = 0;
+	var i = 0;
+
+	clearInterval(playbackInterval);
 
 	playbackInterval = setInterval(function()
 	{
 		let data = recordings[i];
+
 		if(data != undefined)
 		{			
 			let request = createRequest({

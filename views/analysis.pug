@@ -311,24 +311,32 @@ html
 
 			$('a.playback').on('click', (e) => {
 
+				const button = event.target || event.srcElement;
+
 				$('a.playback').html('&#9658;');
-				$(e.target).html('&#10074;&#10074;');
 
-				let gesture = $('nav input:checked').attr('id');
+				if(button.playback)
+				{
+					socket.emit(ACTION.STOP_PLAYBACK);
+					button.playback = false;
+				}
+				else
+				{
+					button.innerHTML = '&#10074;&#10074;';
+					button.playback = true;
 
-				let calibration_id = e.target.getAttribute('data-calibration-id');
+					let gesture = $('nav input:checked').attr('id');
 
-				console.log(calibration_id);
+					let calibration_id = e.target.getAttribute('data-calibration-id');
 
-				let calibration = sortedCollections[gesture].filter(calibration => calibration.calibration_id == calibration_id)[0];
+					let calibration = sortedCollections[gesture].filter(calibration => calibration.calibration_id == calibration_id)[0];
 
-				let amps = calibration.amplitudes;
+					let amps = calibration.amplitudes;
 
-				socket.emit(ACTION.ANALYTIC_PLAYBACK, {
-					recording 	: amps
-				});
-
-				console.log(amps);
+					socket.emit(ACTION.ANALYTIC_PLAYBACK, {
+						recording 	: amps
+					});
+				}
 			});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
