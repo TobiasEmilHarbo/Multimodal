@@ -52,10 +52,19 @@ html
 				float: left;
 			}
 
+			canvas{
+				border: solid 1px lightgrey;
+				border-radius:2px;
+			}
+
+			div.sliders{
+				float: left;
+			}
+
 	body
 		h1 Analysis
 
-		button(id="create-files-btn") Create CSV files
+		button(id="create-files-btn") Create data files
 
 		header
 
@@ -68,6 +77,17 @@ html
 				ul
 
 			canvas(id="myChart")
+
+			div(class="sliders")
+		
+				label Scale x axis
+				input(type="range" min="100" max="300" value="100" class="slider scale-x")
+
+				label Scale y axis
+				input(type="range" min="100" max="300" value="100" class="slider scale-y")
+
+				label(for="chain") Chained
+				input(type="checkbox" id="chain")
 
 
 		script(type='text/javascript').
@@ -82,7 +102,7 @@ html
 			var ctx = canvas.getContext('2d');
 
 			let h = 600;
-			let w = 800;
+			let w = 1200;
 
 			canvas.width 		= w * getRatio(ctx);
 			canvas.height 		= h * getRatio(ctx);
@@ -90,7 +110,6 @@ html
 			canvas.style.height	= h + 'px';
 
 			ctx.transform(1, 0, 0, -1, 0, canvas.height);
-
 
 			sortedCollections = {};
 
@@ -119,17 +138,16 @@ html
 				).appendTo('header nav');
 			}
 
-			changeGesture();
-			$('nav input').on('change', changeGesture);
+			showParticipants();
 
-			function changeGesture()
+			function showParticipants()
 			{
-				clear(ctx);
+				//- clear(ctx);
 
-				$('div.toggle-switch-board ul').remove();
-				$('div.toggle-switch-board').append(
-					$('<ul />')
-				);
+				//- $('div.toggle-switch-board ul').remove();
+				//- $('div.toggle-switch-board').append(
+				//- 	$('<ul />')
+				//- );
 
 				let chosen = $('nav input:checked').attr('id');
 
@@ -161,8 +179,9 @@ html
 					);
 				});
 			}
-			
+
 			$('div.toggle-switch-board').on('change', 'input', toggleVibrationsPattern);
+			$('nav input').on('change', toggleVibrationsPattern);
 
 			function toggleVibrationsPattern()
 			{
@@ -203,23 +222,39 @@ html
 				toggleVibrationsPattern();
 			});
 
-			document.getElementById('create-files-btn')
-				.addEventListener('click', (event) =>
+			$('input.slider').on('change', (e) => {
+
+				if($('input#chain').is(':checked'))
 				{
-					socket.emit(ACTION.CREATE_DATA_FILES);
-				});
+					console.log(e.target.value);
+
+					let value = e.target.value;
+
+					$('input.scale-x').val(value);
+					$('input.scale-y').val(value);
+
+				}
+
+				toggleVibrationsPattern();
+			});
 
 			function clear(ctx)
 			{
-				console.log('clear');
 				ctx.clearRect(0,0,canvas.width,canvas.height);
 			}
 
 			function draw(ctx, points)
 			{
+				let scaleX = $('input.scale-x').val()/100;
+				let scaleY = $('input.scale-y').val()/100;
+
 				let span = 10;
+				ctx.save();
 				ctx.beginPath();
-				ctx.lineWidth = 2;
+
+				ctx.scale(scaleX,scaleY);
+
+
 				ctx.moveTo(0, points[0]);
 
 				for (j = 1; j < points.length; j ++)
@@ -229,10 +264,12 @@ html
 		
 					var xc = (j * span + ((j + 1) * span)) / 2;
 					var yc = (p1 + p2) / 2;
-					ctx.quadraticCurveTo((j * span), p1, xc, yc);
+					ctx.quadraticCurveTo((j * span)+2, p1+2, xc+2, yc +2);
 				}
 
 				ctx.stroke();
+				ctx.restore();
+				ctx.lineWidth = 2;
 			}
 
 			function getRatio(ctx)
@@ -265,3 +302,9 @@ html
 
 				return "00000".substring(0, 6 - c.length) + c;
 			}
+
+			document.getElementById('create-files-btn')
+				.addEventListener('click', (event) =>
+				{
+					socket.emit(ACTION.CREATE_DATA_FILES);
+				});
