@@ -76,7 +76,7 @@ html
 				a(href="#" class="toggle") toggle all
 				ul
 
-			canvas(id="myChart")
+			canvas(id="canvas")
 
 			div(class="sliders")
 		
@@ -98,7 +98,7 @@ html
 
 			const collections = !{ JSON.stringify(collections) }; //get collections from server
 
-			var canvas = document.getElementById("myChart");
+			var canvas = document.getElementById('canvas');
 			var ctx = canvas.getContext('2d');
 
 			let h = 600;
@@ -226,8 +226,6 @@ html
 
 				if($('input#chain').is(':checked'))
 				{
-					console.log(e.target.value);
-
 					let value = e.target.value;
 
 					$('input.scale-x').val(value);
@@ -251,7 +249,7 @@ html
 				let span = 10;
 				ctx.save();
 				ctx.beginPath();
-
+				ctx.lineWidth = 2;
 				ctx.scale(scaleX,scaleY);
 
 
@@ -269,7 +267,6 @@ html
 
 				ctx.stroke();
 				ctx.restore();
-				ctx.lineWidth = 2;
 			}
 
 			function getRatio(ctx)
