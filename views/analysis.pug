@@ -102,7 +102,7 @@ html
 			var ctx = canvas.getContext('2d');
 
 			let h = 600;
-			let w = 1200;
+			let w = 1000;
 
 			canvas.width 		= w * getRatio(ctx);
 			canvas.height 		= h * getRatio(ctx);
@@ -247,11 +247,11 @@ html
 				let scaleY = $('input.scale-y').val()/100;
 
 				let span = 10;
+
 				ctx.save();
 				ctx.beginPath();
 				ctx.lineWidth = 2;
 				ctx.scale(scaleX,scaleY);
-
 
 				ctx.moveTo(0, points[0]);
 
