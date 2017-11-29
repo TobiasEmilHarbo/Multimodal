@@ -8,11 +8,48 @@ html
 		title Analysis
 
 		script(src="/socket.io/socket.io.js")
-		script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js")
+		script(src="https://code.jquery.com/jquery-3.2.1.min.js",integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
 
 		style.
 			html{
 				font-family: Arial;
+			}
+
+			button{
+				display: block;
+			}
+
+			header nav{
+				text-align: center;
+			}
+
+			label{
+				display: inline;
+				padding: 8px;
+				cursor: pointer;
+				position: relative;
+				overflow: hidden;
+			}
+			
+			label > *{
+				margin: 8px;
+			}
+			
+			div.toggle-switch-board li{
+				list-style: none;
+			}
+
+			div.toggle-switch-board li .color{
+				display: inline-block;
+				height: 16px;
+				width: 16px;
+				border-radius: 100%;
+				*display:inline; /* ie 7 fix */
+				vertical-align: top;
+			}
+
+			div.toggle-switch-board, canvas{
+				float: left;
 			}
 
 	body
@@ -20,14 +57,151 @@ html
 
 		button(id="create-files-btn") Create CSV files
 
-		//- canvas(id="myChart",width="400",height="400")
+		header
+
+			nav
+
+		div
+			div(class="toggle-switch-board")
+
+				a(href="#" class="toggle") toggle all
+				ul
+
+			canvas(id="myChart")
+
 
 		script(type='text/javascript').
 
 			const socket = io();
+			const GESTURES = !{ JSON.stringify(GESTURES) }; //get GESTURES from server
 			const ACTION = !{ JSON.stringify(ACTION) }; //get ACTION from server
 
-			//- const patterns = !{ JSON.stringify(patterns) }; //get ACTION from server
+			const collections = !{ JSON.stringify(collections) }; //get collections from server
+
+			var canvas = document.getElementById("myChart");
+			var ctx = canvas.getContext('2d');
+
+			let h = 600;
+			let w = 800;
+
+			canvas.width 		= w * getRatio(ctx);
+			canvas.height 		= h * getRatio(ctx);
+			canvas.style.width 	= w + 'px';
+			canvas.style.height	= h + 'px';
+
+			ctx.transform(1, 0, 0, -1, 0, canvas.height);
+
+
+			sortedCollections = {};
+
+			for (var i = 0; i < GESTURES.length; i++)
+			{
+				sortedCollections[GESTURES[i]] = collections.filter(pattern => 
+					pattern.gesture_id == GESTURES[i]
+				);
+			}
+
+			for(collection in sortedCollections)
+			{
+				let col = sortedCollections[collection];
+
+				let l = $('<label />', {
+					for : collection
+				})
+				.html(collection)
+				.append(
+					$('<input />', {
+						type : 'radio',
+						name : 'gesture',
+						id : collection,
+						checked : true
+					})
+				).appendTo('header nav');
+			}
+
+			changeGesture();
+			$('nav input').on('change', changeGesture);
+
+			function changeGesture()
+			{
+				clear(ctx);
+
+				$('div.toggle-switch-board ul').remove();
+				$('div.toggle-switch-board').append(
+					$('<ul />')
+				);
+
+				let chosen = $('nav input:checked').attr('id');
+
+				sortedCollections[chosen].forEach((elm, i) => {
+
+					var color = '#' + intToRGB(hashCode(elm.calibration_id));
+
+					$('div.toggle-switch-board ul').append(
+						$('<li />')
+						.append(
+							$('<label />', {
+								for : elm.calibration_id
+							})
+							.append(
+								$('<input />', {
+									type : 'checkbox',
+									id 	: elm.calibration_id,
+									//- checked : true
+								})
+							).append(
+								$('<span />', {
+									class : 'color',
+									style : 'background-color:'+color
+								}).text(' ')
+							).append(
+								$('<span />').text(elm.calibration_id)
+							)
+						)
+					);
+				});
+			}
+			
+			$('div.toggle-switch-board').on('change', 'input', toggleVibrationsPattern);
+
+			function toggleVibrationsPattern()
+			{
+				clear(ctx);
+				$('div.toggle-switch-board ul input:checked').each((i, elm) => {
+					let chosen = $('nav input:checked').attr('id');
+
+					let calibration = sortedCollections[chosen].filter(calibration => calibration.calibration_id == elm.id)[0];
+
+					let amps = calibration.amplitudes;
+
+					let color = '#' + intToRGB(hashCode(elm.id));
+
+					ctx.strokeStyle = color;
+
+					draw(ctx, amps);
+				})
+			}
+
+			$('a.toggle').on('click', (e) => {
+				e.preventDefault();
+
+				var checked = $('div.toggle-switch-board ul input:checked');
+
+				if(checked.length > 0)
+				{
+					checked.each((i, elm) => {
+						elm.checked = false;
+					})				
+				}
+				else
+				{
+					$('div.toggle-switch-board ul input').each((i, elm) => {
+						elm.checked = true;
+					})				
+				}
+
+				toggleVibrationsPattern();
+			});
 
 			document.getElementById('create-files-btn')
 				.addEventListener('click', (event) =>
@@ -35,45 +209,59 @@ html
 					socket.emit(ACTION.CREATE_DATA_FILES);
 				});
 
-			//- let points = patterns[0]['amplitude'];
+			function clear(ctx)
+			{
+				console.log('clear');
+				ctx.clearRect(0,0,canvas.width,canvas.height);
+			}
 
-			//- var ctx = document.getElementById("myChart").getContext('2d');
-				
-			//- let span = 20;
-			//- ctx.moveTo(0, points[0]);
+			function draw(ctx, points)
+			{
+				let span = 10;
+				ctx.beginPath();
+				ctx.lineWidth = 2;
+				ctx.moveTo(0, points[0]);
 
-			//- for (i = 1; i < points.length - 2; i ++)
-			//- {
-			//- 	var xc = (i * span + ((i + 1) * span)) / 2;
-			//- 	var yc = (points[i] + points[i + 1]) / 2;
-			//- 	ctx.quadraticCurveTo(i * span, points[i], xc, yc);
-			//- }
+				for (j = 1; j < points.length; j ++)
+				{
+					let p1 = points[j];
+					let p2 = (points[j + 1]) ? points[j + 1] : 0;
+		
+					var xc = (j * span + ((j + 1) * span)) / 2;
+					var yc = (p1 + p2) / 2;
+					ctx.quadraticCurveTo((j * span), p1, xc, yc);
+				}
 
-			//- ctx.stroke();
+				ctx.stroke();
+			}
 
-			//- var patternMaxLength = 0;
+			function getRatio(ctx)
+			{
+				var dpr = 	window.devicePixelRatio 			|| 1;
+				var bsr = 	ctx.webkitBackingStorePixelRatio 	||
+							ctx.mozBackingStorePixelRatio 		||
+							ctx.msBackingStorePixelRatio 		||
+							ctx.oBackingStorePixelRatio 		||
+							ctx.backingStorePixelRatio 			|| 1;
 
-			//- for (var i = 0; i < patterns.length; i++)
-			//- {
-			//- 	if(patternMaxLength < patterns[i].amplitudes.length) patternMaxLength = patterns[i].amplitudes.length;
-			//- }
-			
-			//- console.log(patternMaxLength);
+				return dpr / bsr;
+			};
 
-			//- var header = 'gesture_id,calibration_id';
+			function hashCode(str)
+			{
+				var hash = 0;
+				for (var i = 0; i < str.length; i++)
+				{
+					hash = str.charCodeAt(i) + ((hash << 5) - hash);
+				}
+				return hash;
+			} 
 
-			//- for (var i = 0; i < patternMaxLength; i++)
-			//- {
-			//- 	header += ',' + (60*i);
-			//- }
+			function intToRGB(i)
+			{
+				let c = (i & 0x00FFFFFF)
+				.toString(16)
+				.toUpperCase();
 
-			//- console.log(header);
-
-			//- for (var i = 0; i < patterns.length; i++)
-			//- {
-			//- 	let pattern = patterns[i];
-			//- 	console.log(pattern.gesture_id + ', ' + pattern.calibration_id + ',' + pattern.amplitudes.join());
-			//- }
-
-
-
+				return "00000".substring(0, 6 - c.length) + c;
+			}

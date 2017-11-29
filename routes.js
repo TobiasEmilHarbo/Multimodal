@@ -16,9 +16,16 @@ module.exports = function(app)
 
 	app.get('/analysis', function(HTTPRequest, HTTPResponse)
 	{
-		HTTPResponse.render('analysis', {
-			ACTION 	: ACTION,
-			// patterns : patterns,
+		DB.find({
+			collection : VIBRATION_PATTERN_COLLECTION,
+		},
+		function(collections)
+		{
+			HTTPResponse.render('analysis', {
+				ACTION 		: ACTION,
+				collections : collections,
+				GESTURES 	: GESTURES
+			});
 		});
 	});
 
