@@ -46,6 +46,7 @@ global.ACTION = {
 	SET_ORDER 			: '9',
 	DONE				: '10',
 	CREATE_DATA_FILES	: '11',
+	ANALYTIC_PLAYBACK	: '12',
 }
 
 global.GESTURES = [
@@ -113,39 +114,9 @@ io.on('connection', (socket) =>
 
 	socket.on(ACTION.PLAYBACK, (data) =>
 	{
-		let i = 0;
-
 		io.emit(ACTION.STOP_RECORDING);
 
-		playbackInterval = setInterval(function()
-		{
-			let data = dataRecordings[i];
-			if(data != undefined)
-			{			
-				let request = createRequest({
-						action : ACTION.PLAYBACK,
-						data : dataRecordings[i]
-				});
-
-				sendDataToArduino(request);
-				
-				i++;
-			}
-			else
-			{
-				clearInterval(playbackInterval);
-
-				let request = createRequest({
-						action : ACTION.STOP_PLAYBACK,
-				});
-
-				sendDataToArduino(request);
-
-				io.emit(ACTION.STOP_PLAYBACK);
-			}
-
-		}, timePeriod);
-
+		playback(dataRecordings);
 	});
 
 	socket.on(ACTION.STOP_PLAYBACK, (data) =>
@@ -228,12 +199,52 @@ io.on('connection', (socket) =>
 	{
 		createFiles(0);
 	});
+
+	socket.on(ACTION.ANALYTIC_PLAYBACK, (data) =>
+	{
+		playback(data.recording);
+	});
+	
 });
 
 http.listen(port, () =>
 {
 	console.log('Server is up and running. Go to http://localhost:' + port + '/');
 });
+
+function playback(recordings)
+{
+	let i = 0;
+
+	playbackInterval = setInterval(function()
+	{
+		let data = recordings[i];
+		if(data != undefined)
+		{			
+			let request = createRequest({
+					action : ACTION.PLAYBACK,
+					data : data
+			});
+
+			sendDataToArduino(request);
+			
+			i++;
+		}
+		else
+		{
+			clearInterval(playbackInterval);
+
+			let request = createRequest({
+					action : ACTION.STOP_PLAYBACK,
+			});
+
+			sendDataToArduino(request);
+
+			io.emit(ACTION.STOP_PLAYBACK);
+		}
+
+	}, timePeriod);
+}
 
 function sendDataToArduino(data)
 {
@@ -354,7 +365,8 @@ function createFiles(gestureCount)
 					if(pattern.amplitudes[i] != undefined)
 						row += pattern.amplitudes[i] + '	';
 
-					else if(i < pattern.amplitudes.length+1 && pattern.amplitudes[i-1] != 0)
+					// else if(i < pattern.amplitudes.length+1 && pattern.amplitudes[i-1] != 0)
+					else
 						row += '0	';
 				}
 
