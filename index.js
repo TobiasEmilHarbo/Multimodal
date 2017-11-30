@@ -227,6 +227,7 @@ io.on('connection', (socket) =>
 
 		var header = [];
 		var table = [];
+		var paths = [];
 
 		DB.find({
 			collection : VIBRATION_PATTERN_COLLECTION,
@@ -239,6 +240,7 @@ io.on('connection', (socket) =>
 			for (var i = patterns.length - 1; i >= 0; i--)
 			{
 				table[i] = [];
+				paths[i] = [];
 
 				var series1 = patterns[i].amplitudes;
 
@@ -249,7 +251,13 @@ io.on('connection', (socket) =>
 					var series2 = patterns[j].amplitudes;
 
 					var dist = dtw.compute(series1, series2);
+					
+					var path = [];
+					dtw.path().forEach((elm, i) => {
+						path.push(elm[1]);
+					});
 
+					paths[i][j] = path;
 					table[i][j] = dist;
 				}
 			}
@@ -258,7 +266,8 @@ io.on('connection', (socket) =>
 
 			io.emit(ACTION.DISPLAY_DTW_TABLE, {
 				header : header,
-				table : table
+				table : table,
+				paths : paths
 			});
 		});
 	});

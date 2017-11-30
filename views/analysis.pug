@@ -17,6 +17,7 @@ html
 			}
 			html{
 				font-family: Arial;
+				overflow-y:scroll;
 			}
 
 			header{
@@ -278,7 +279,7 @@ html
 
 					ctx.strokeStyle = color;
 
-					draw(ctx, amps);
+					draw(ctx, amps, true);
 				});
 			}
 
@@ -321,7 +322,7 @@ html
 				ctx.clearRect(0,0,canvas.width,canvas.height);
 			}
 
-			function draw(ctx, points)
+			function draw(ctx, points, smooth)
 			{
 				let scaleX = $('input.scale-x').val()/100;
 				let scaleY = $('input.scale-y').val()/100;
@@ -330,7 +331,7 @@ html
 
 				ctx.save();
 				ctx.beginPath();
-				//- ctx.lineWidth = 2;
+
 				ctx.scale(scaleX,scaleY);
 
 				ctx.moveTo(0, points[0]);
@@ -342,7 +343,10 @@ html
 		
 					var xc = (j * span + ((j + 1) * span)) / 2;
 					var yc = (p1 + p2) / 2;
-					ctx.quadraticCurveTo((j * span)+2, p1+2, xc+2, yc +2);
+					if(smooth)
+						ctx.quadraticCurveTo((j * span)+2, p1+2, xc+2, yc +2);
+					else
+						ctx.lineTo(p1, yc);
 				}
 
 				ctx.stroke();
@@ -417,6 +421,7 @@ html
 				const anchor = event.target || event.srcElement;
 
 				var calibrationIds = anchor.getAttribute('data-calibration-ids').split(',');
+				var path = anchor.getAttribute('data-dtw-path').split(',');
 
 				var checkboxes = $('div.toggle-switch-board ul input');
 				
@@ -425,6 +430,9 @@ html
 				})
 
 				toggleVibrationsPattern();
+			
+				//- ctx.strokeStyle = 'grey';
+				//- draw(ctx, path);
 			});
 
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
@@ -458,7 +466,6 @@ html
 						max = (dist > max) ? dist : max;
 						min = (dist < min && dist != 0) ? dist : min;
 					});
-
 				});
 
 				data.table.forEach((rowData, i) => {
@@ -477,7 +484,8 @@ html
 
 							$('<a />', {
 								href : '#',
-								'data-calibration-ids' : [data.header[i], data.header[j]]								
+								'data-calibration-ids' : [data.header[i], data.header[j]],
+								'data-dtw-path'	: data.paths[i][j]
 							}).text(dist)
 
 						).appendTo(row);
