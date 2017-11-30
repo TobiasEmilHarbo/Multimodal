@@ -1,7 +1,11 @@
 const app = require('express')();
 const shortid = require('shortid');
 const Database = require('./Database');
-const DB = new Database();
+const Datastore = require('nedb');
+
+global.VIBRATION_PATTERN_COLLECTION = 'vibration_patterns';
+global.DB = new Datastore({ filename: './datastore/db.js', autoload: true });
+
 require('console.table');
 const fs = require('fs');
 
@@ -172,9 +176,10 @@ io.on('connection', (socket) =>
 			calibration_id 	: calibrationId,
 			period 			: timePeriod,
 			amplitudes 		: dataRecordings,
+			collection 		: VIBRATION_PATTERN_COLLECTION
 		}];
 
-		DB.insert(VIBRATION_PATTERN_COLLECTION, doc, function(err, doc)
+		DB.insert(doc, function(err, doc)
 		{
 			console.log(doc);
 
@@ -226,8 +231,10 @@ io.on('connection', (socket) =>
 		DB.find({
 			collection : VIBRATION_PATTERN_COLLECTION,
 			gesture_id : data.gesture
-		},
-		(patterns) =>
+		}).sort({
+			calibration_id : 1
+		}).exec(
+		(err, patterns) =>
 		{
 			for (var i = patterns.length - 1; i >= 0; i--)
 			{
@@ -350,7 +357,7 @@ function createFiles(gestureCount)
 		collection : VIBRATION_PATTERN_COLLECTION,
 		gesture_id : gesture.id
 	},
-	function(patterns)
+	(err, patterns) =>
 	{
 		var csvStream = fs.createWriteStream('data/' + gesture.id + '.csv');
 		var datStream = fs.createWriteStream('data/' + gesture.id + '.dat');

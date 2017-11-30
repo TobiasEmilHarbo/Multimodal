@@ -189,11 +189,7 @@ html
 			{
 				sortedCollections[GESTURES[i].id] = collections.filter(pattern => 
 					pattern.gesture_id == GESTURES[i].id
-				).sort((a, b) => {
-					if(a.calibration_id > b.calibration_id) return 1;
-					if(a.calibration_id < b.calibration_id) return -1;
-					return 0;
-				})
+				);
 			}
 
 			for(collection in sortedCollections)

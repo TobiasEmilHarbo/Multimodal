@@ -1,5 +1,5 @@
-const Database = require('./Database');
-const DB = new Database();
+// const Database = require('./Database');
+// const DB = new Database();
 
 module.exports = function(app)
 {
@@ -18,8 +18,9 @@ module.exports = function(app)
 	{
 		DB.find({
 			collection : VIBRATION_PATTERN_COLLECTION,
-		},
-		function(collections)
+		}).sort({
+			calibration_id : 1
+		}).exec((err, collections) =>
 		{
 			HTTPResponse.render('analysis', {
 				ACTION 		: ACTION,
