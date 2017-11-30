@@ -4,6 +4,8 @@ const Database = require('./Database');
 const DB = new Database();
 const fs = require('fs');
 
+const DTW = require('dtw');
+
 app.set('view engine', 'pug');
 
 var SerialPort = require('serialport');
@@ -383,3 +385,21 @@ function createFiles(gestureCount)
 		if(GESTURES.length-1 > gestureCount) createFiles(gestureCount+1);
 	});
 }
+
+
+// var ser1 = [ 9, 93, 15, 19, 24 ];
+// var ser2 = [ 31, 97, 81, 82, 39 ];
+// // var distFunc = function( a, b ) {
+// //     return Math.abs( a - b );
+// // };
+ 
+// var dtw = new DTW({
+// 	distanceMetric : 'euclidean'
+	
+// });
+
+// // var dist = dtw2.getDistance();
+
+// var dist = dtw.compute(ser1, ser2);
+
+// console.log(dist);
