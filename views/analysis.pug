@@ -11,16 +11,33 @@ html
 		script(src="https://code.jquery.com/jquery-3.2.1.min.js",integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
 
 		style.
+
+			*{
+				box-sizing: border-box;
+			}
 			html{
 				font-family: Arial;
 			}
 
-			button{
-				display: block;
+			header{
+				text-align: center;
 			}
 
-			header nav{
+			div.graph-view{
+				width: 1200px;
+				margin: 0 auto;
+			}
+
+			div.graph-view div.toggle-switch-board{
+				width: 300px;
 				text-align: center;
+			}
+
+			div.graph-view div.sliders{
+				text-align: center;
+			}
+
+			button{
 			}
 
 			label{
@@ -37,6 +54,7 @@ html
 			
 			div.toggle-switch-board li{
 				list-style: none;
+				text-align: left;
 			}
 
 			div.toggle-switch-board li .color{
@@ -57,43 +75,44 @@ html
 				border-radius:2px;
 			}
 
-			div.sliders{
-				clear: both;
-				float: left;
-			}
-
 			a{
 				cursor: pointer;
 				padding: 8px;
 			}
 
 	body
-		h1 Analysis
 
-		button(id="create-files-btn") Create data files
+		header 
+			h1 Analysis
 
-		header
+			button(id="create-files-btn") Export data (.csv, .dat)
 
-			nav
+		br
 
-		div
-			div(class="toggle-switch-board")
+		div(class="graph-view")
 
-				a(href="#" class="toggle") toggle all
-				ul
+			header
 
-			canvas(id="canvas")
+				nav
 
-			div(class="sliders")
-		
-				label Scale x axis
-				input(type="range" min="100" max="400" value="100" class="slider scale-x")
+			div
+				div(class="toggle-switch-board")
 
-				label Scale y axis
-				input(type="range" min="100" max="400" value="100" class="slider scale-y")
+					a(href="#" class="toggle") toggle all
+					ul
 
-				label(for="chain") Chained
-				input(type="checkbox" id="chain")
+				canvas(id="canvas")
+
+				div(class="sliders")
+			
+					label Scale x axis
+					input(type="range" min="100" max="400" value="100" class="slider scale-x")
+
+					label Scale y axis
+					input(type="range" min="100" max="400" value="100" class="slider scale-y")
+
+					label(for="link") Linked
+					input(type="checkbox" id="link")
 
 
 		script(type='text/javascript').
@@ -108,7 +127,7 @@ html
 			var ctx = canvas.getContext('2d');
 
 			let h = 600;
-			let w = 1000;
+			let w = 900;
 
 			canvas.width 		= w * getRatio(ctx);
 			canvas.height 		= h * getRatio(ctx);
@@ -130,9 +149,6 @@ html
 				})
 			}
 
-			console.log(sortedCollections)
-
-
 			for(collection in sortedCollections)
 			{
 				let col = sortedCollections[collection];
@@ -149,7 +165,7 @@ html
 						id : collection,
 						checked : true
 					})
-				).appendTo('header nav');
+				).appendTo('div.graph-view header nav');
 			}
 
 			showParticipants();
@@ -236,7 +252,7 @@ html
 
 			$('input.slider').on('change', (e) => {
 
-				if($('input#chain').is(':checked'))
+				if($('input#link').is(':checked'))
 				{
 					let value = e.target.value;
 
