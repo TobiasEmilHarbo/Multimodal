@@ -111,10 +111,17 @@ html
 			}
 
 			table a{
+				text-decoration: none;
+				color: #000;
+			}
+
+			table tr{
+				text-align: center;
 			}
 
 			table tr td:first-child{
 				font-weight: bold;
+				text-align: left;
 			}
 
 	body
@@ -143,10 +150,10 @@ html
 				div(class="sliders")
 			
 					label Scale x axis
-					input(type="range" min="100" max="400" value="100" class="slider scale-x")
+					input(type="range" min="100" max="400" value="250" class="slider scale-x")
 
 					label Scale y axis
-					input(type="range" min="100" max="400" value="100" class="slider scale-y")
+					input(type="range" min="100" max="400" value="250" class="slider scale-y")
 
 					label(for="link") Linked
 					input(type="checkbox" id="link")
@@ -252,7 +259,10 @@ html
 			}
 
 			$('div.toggle-switch-board').on('change', 'input', toggleVibrationsPattern);
-			$('nav input').on('change', toggleVibrationsPattern);
+			$('nav input').on('change', (e) => {
+				$('div.dtw-view table').empty();
+				toggleVibrationsPattern()
+			});
 
 			function toggleVibrationsPattern()
 			{
@@ -438,6 +448,19 @@ html
 
 				var header = $('<thead />').append($('<td />'));
 
+				var max = -Infinity;
+				var min = Infinity;
+
+				data.table.forEach((rowData, i) => {
+				
+					rowData.forEach((dist, j) => {
+
+						max = (dist > max) ? dist : max;
+						min = (dist < min && dist != 0) ? dist : min;
+					});
+
+				});
+
 				data.table.forEach((rowData, i) => {
 				
 					var row = $('<tr />').append($('<td />').text(data.header[i]));
@@ -446,11 +469,15 @@ html
 
 					rowData.forEach((dist, j) => {
 
-						$('<td />').append(
+						var color = dist.map(min,max,255,0);
+
+						$('<td />', {
+							style : 'background-color:rgb(255,'+ color.toFixed() +',0)'
+						}).append(
 
 							$('<a />', {
 								href : '#',
-								'data-calibration-ids' : [data.header[i], data.header[j]]
+								'data-calibration-ids' : [data.header[i], data.header[j]]								
 							}).text(dist)
 
 						).appendTo(row);
@@ -460,6 +487,9 @@ html
 				});
 
 				table.append(header);
+
+				console.log(max);
+				console.log(min);
 			});
 
 			$('button.create-files-btn').on('click', (e) => {
