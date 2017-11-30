@@ -7,7 +7,7 @@ module.exports = function(app)
 	{
 		HTTPResponse.render('index', {
 			ACTION 			: ACTION,
-			currentGesture 	: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
+			currentGesture 	: GESTURES[ORDERS[selectedOrder][currentGestureIndex]].id,
 			order 			: ORDERS[selectedOrder],
 			recording 		: (dataRecordings.length > 0),
 			calibrated		: (calibrationId != null)

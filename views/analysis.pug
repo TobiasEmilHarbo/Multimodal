@@ -121,19 +121,27 @@ html
 
 			for (var i = 0; i < GESTURES.length; i++)
 			{
-				sortedCollections[GESTURES[i]] = collections.filter(pattern => 
-					pattern.gesture_id == GESTURES[i]
-				);
+				sortedCollections[GESTURES[i].id] = collections.filter(pattern => 
+					pattern.gesture_id == GESTURES[i].id
+				).sort((a, b) => {
+					if(a.calibration_id > b.calibration_id) return 1;
+					if(a.calibration_id < b.calibration_id) return -1;
+					return 0;
+				})
 			}
+
+			console.log(sortedCollections)
+
 
 			for(collection in sortedCollections)
 			{
 				let col = sortedCollections[collection];
+				let alias = GESTURES.find((gesture) => {return gesture.id == collection}).alias;
 
 				let l = $('<label />', {
 					for : collection
 				})
-				.html(collection)
+				.html(alias)
 				.append(
 					$('<input />', {
 						type : 'radio',
@@ -148,13 +156,6 @@ html
 
 			function showParticipants()
 			{
-				//- clear(ctx);
-
-				//- $('div.toggle-switch-board ul').remove();
-				//- $('div.toggle-switch-board').append(
-				//- 	$('<ul />')
-				//- );
-
 				let chosen = $('nav input:checked').attr('id');
 
 				sortedCollections[chosen].forEach((elm, i) => {

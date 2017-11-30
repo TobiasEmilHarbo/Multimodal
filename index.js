@@ -52,9 +52,9 @@ global.ACTION = {
 }
 
 global.GESTURES = [
-	'cGCFyLX7cLo',
-	'yjX5V7oiPhk',
-	'nMceTIUaZzU'
+	{id : 'cGCFyLX7cLo', alias : 'beckoning'},
+	{id : 'yjX5V7oiPhk', alias : 'highlighting'},
+	{id : 'nMceTIUaZzU', alias : 'reverse'}
 ];
 
 global.ORDERS = [
@@ -160,7 +160,7 @@ io.on('connection', (socket) =>
 		if(dataRecordings.length < 1) return;
 
 		var doc = [{
-			gesture_id 		: GESTURES[ORDERS[selectedOrder][currentGestureIndex]],
+			gesture_id 		: GESTURES[ORDERS[selectedOrder][currentGestureIndex]].id,
 			order 			: ORDERS[selectedOrder],
 			calibration_id 	: calibrationId,
 			period 			: timePeriod,
@@ -173,7 +173,7 @@ io.on('connection', (socket) =>
 
 			currentGestureIndex++;
 
-			if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]])
+			if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]].id)
 			{
 				reset();
 				io.emit(ACTION.DONE);
@@ -181,7 +181,7 @@ io.on('connection', (socket) =>
 			}
 
 			io.emit(ACTION.NEXT_GESTURE, {
-				gesture : GESTURES[ORDERS[selectedOrder][currentGestureIndex]]
+				gesture : GESTURES[ORDERS[selectedOrder][currentGestureIndex]].id
 			});
 		});
 	});
@@ -304,12 +304,12 @@ function createFiles(gestureCount)
 
 	DB.find({
 		collection : VIBRATION_PATTERN_COLLECTION,
-		gesture_id : gesture
+		gesture_id : gesture.id
 	},
 	function(patterns)
 	{
-		var csvStream = fs.createWriteStream('data/' + gesture + '.csv');
-		var datStream = fs.createWriteStream('data/' + gesture + '.dat');
+		var csvStream = fs.createWriteStream('data/' + gesture.id + '.csv');
+		var datStream = fs.createWriteStream('data/' + gesture.id + '.dat');
 
 		patterns.sort(function(a,b)
 		{
