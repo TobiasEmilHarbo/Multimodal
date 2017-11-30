@@ -25,6 +25,8 @@ html
 
 			div.graph-view{
 				width: 1200px;
+				position: relative;
+				overflow: hidden;
 				margin: 0 auto;
 			}
 
@@ -76,8 +78,43 @@ html
 			}
 
 			a{
+				display: inline-block;
 				cursor: pointer;
 				padding: 8px;
+			}
+
+			div.dtw-view{
+				text-align: center;
+			}
+
+			table{
+				margin: 0 auto;
+			}
+
+			table th {
+				/* Something you can count on */
+				height: 140px;
+				white-space: nowrap;
+			}
+
+			table th > div {
+				transform: 
+				/* Magic Numbers */
+				translate(15px, 51px)
+				/* 45 is really 360 - 45 */
+				rotate(315deg);
+				width: 30px;
+			}
+
+			table th > div > span {
+				padding: 5px 10px;
+			}
+
+			table a{
+			}
+
+			table tr td:first-child{
+				font-weight: bold;
 			}
 
 	body
@@ -114,8 +151,18 @@ html
 					label(for="link") Linked
 					input(type="checkbox" id="link")
 
+		div(class="dtw-view")
+
+			button(class="generate-dtw") Generate DTW table
+
+			table
 
 		script(type='text/javascript').
+
+			Number.prototype.map = function (in_min, in_max, out_min, out_max)
+			{
+				return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+			}
 
 			const socket = io();
 			const GESTURES = !{ JSON.stringify(GESTURES) }; //get GESTURES from server
@@ -226,7 +273,7 @@ html
 					ctx.strokeStyle = color;
 
 					draw(ctx, amps);
-				})
+				});
 			}
 
 			$('a.toggle').on('click', (e) => {
@@ -329,19 +376,19 @@ html
 
 			$('a.playback').on('click', (e) => {
 
-				const button = event.target || event.srcElement;
+				const anchor = event.target || event.srcElement;
 
 				$('a.playback').html('&#9658;');
 
-				if(button.playback)
+				if(anchor.playback)
 				{
 					socket.emit(ACTION.STOP_PLAYBACK);
-					button.playback = false;
+					anchor.playback = false;
 				}
 				else
 				{
-					button.innerHTML = '&#9724;';
-					button.playback = true;
+					anchor.innerHTML = '&#9724;';
+					anchor.playback = true;
 
 					let gesture = $('nav input:checked').attr('id');
 
@@ -357,13 +404,68 @@ html
 				}
 			});
 
+			$('table').on('click', 'a', (e) => {
+				e.preventDefault();
+
+				let gesture = $('nav input:checked').attr('id');
+				const anchor = event.target || event.srcElement;
+
+				var calibrationIds = anchor.getAttribute('data-calibration-ids').split(',');
+
+				var checkboxes = $('div.toggle-switch-board ul input');
+				
+				checkboxes.each((i, elm) => {
+					elm.checked = (calibrationIds.includes(elm.id));
+				})
+
+				toggleVibrationsPattern();
+			});
+
 			socket.on(ACTION.STOP_PLAYBACK, function(data)
 			{
 				$('a.playback').html('&#9658;');
 			});
 
-			document.getElementById('create-files-btn')
-				.addEventListener('click', (event) =>
-				{
-					socket.emit(ACTION.CREATE_DATA_FILES);
+			$('button.generate-dtw').on('click', (e) => {
+
+				let gesture = $('nav input:checked').attr('id');
+
+				socket.emit(ACTION.GENERATE_DTW_TABLE, {
+					gesture : gesture
 				});
+			});
+
+			socket.on(ACTION.DISPLAY_DTW_TABLE, function(data)
+			{
+				var table = $('div.dtw-view table');
+				table.empty();
+
+				var header = $('<thead />').append($('<td />'));
+
+				data.table.forEach((rowData, i) => {
+				
+					var row = $('<tr />').append($('<td />').text(data.header[i]));
+
+					header.append($('<th />').append($('<div />').append($('<span />').text(data.header[i]))));
+
+					rowData.forEach((dist, j) => {
+
+						$('<td />').append(
+
+							$('<a />', {
+								href : '#',
+								'data-calibration-ids' : [data.header[i], data.header[j]]
+							}).text(dist)
+
+						).appendTo(row);
+					});
+
+					table.append(row);
+				});
+
+				table.append(header);
+			});
+
+			$('button.create-files-btn').on('click', (e) => {
+				socket.emit(ACTION.CREATE_DATA_FILES);
+			});

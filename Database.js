@@ -38,15 +38,4 @@ module.exports = function()
 			callback(docs);
 		});
 	};
-
-	// this.remove = function (collection, id, where, callback)
-	// {
-	// 	if(id)
-	// 		where._id = id;
-
-	// 	db.remove(where, {}, function (err, numRemoved)
-	// 	{
-	// 		callback(err, numRemoved);
-	// 	})
-	// };
 };

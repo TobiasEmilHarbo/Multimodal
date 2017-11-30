@@ -2,6 +2,7 @@ const app = require('express')();
 const shortid = require('shortid');
 const Database = require('./Database');
 const DB = new Database();
+require('console.table');
 const fs = require('fs');
 
 const DTW = require('dtw');
@@ -49,6 +50,8 @@ global.ACTION = {
 	DONE				: '10',
 	CREATE_DATA_FILES	: '11',
 	ANALYTIC_PLAYBACK	: '12',
+	GENERATE_DTW_TABLE	: '13',
+	DISPLAY_DTW_TABLE 	: '14'
 }
 
 global.GESTURES = [
@@ -79,6 +82,10 @@ global.calibrationId = null;
 
 var playbackInterval;
 
+http.listen(port, () =>
+{
+	console.log('Server is up and running. Go to http://localhost:' + port + '/');
+});
 
 parser.on('data', (response) =>
 {
@@ -173,7 +180,7 @@ io.on('connection', (socket) =>
 
 			currentGestureIndex++;
 
-			if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]].id)
+			if(!GESTURES[ORDERS[selectedOrder][currentGestureIndex]])
 			{
 				reset();
 				io.emit(ACTION.DONE);
@@ -206,12 +213,49 @@ io.on('connection', (socket) =>
 	{
 		playback(data.recording);
 	});
-	
-});
 
-http.listen(port, () =>
-{
-	console.log('Server is up and running. Go to http://localhost:' + port + '/');
+	socket.on(ACTION.GENERATE_DTW_TABLE, (data) =>
+	{
+		var dtw = new DTW({
+			distanceMetric : 'manhattan'
+		});
+
+		var header = [];
+		var table = [];
+
+		DB.find({
+			collection : VIBRATION_PATTERN_COLLECTION,
+			gesture_id : data.gesture
+		},
+		(patterns) =>
+		{
+			for (var i = patterns.length - 1; i >= 0; i--)
+			{
+				table[i] = [];
+
+				var series1 = patterns[i].amplitudes;
+
+				header[i] = patterns[i].calibration_id;
+
+				for (var j = 0; j < patterns.length; j++)
+				{
+					var series2 = patterns[j].amplitudes;
+
+					var dist = dtw.compute(series1, series2);
+
+					table[i][j] = dist;
+				}
+			}
+	
+			console.table(table);
+
+			io.emit(ACTION.DISPLAY_DTW_TABLE, {
+				header : header,
+				table : table
+			});
+		});
+	});
+	
 });
 
 function playback(recordings)

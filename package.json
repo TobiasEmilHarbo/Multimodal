@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "chart.js": "^2.7.1",
+    "console.table": "^0.9.1",
     "dtw": "0.0.3",
     "dynamic-time-warping": "^1.0.0",
     "express": "^4.10.2",
