@@ -1,0 +1,6 @@
+{"gesture_id":"yjX5V7oiPhk","order":[0,1,2],"calibration_id":"HyPAEq-gz","perdiod":80,"amplitudes":[1,20,45,57,58,60,57,66,68,60,59,60,68,58,61,63,65,63,64,68,63,65,44,7],"collection":"vibration_patterns","_id":"TJCpv85t1ZpiXSWn"}
+{"gesture_id":"cGCFyLX7cLo","order":[0,1,2],"calibration_id":"HyPAEq-gz","perdiod":80,"amplitudes":[18,89,127,105,10,0,0,0,0,2,66,121,127,119,2,0],"collection":"vibration_patterns","_id":"VqWN7911WnyC5al6"}
+{"gesture_id":"nMceTIUaZzU","order":[0,1,2],"calibration_id":"HyPAEq-gz","perdiod":80,"amplitudes":[48,63,5,9,53,47],"collection":"vibration_patterns","_id":"Yb6d6WJoeqm0n2wV"}
+{"gesture_id":"cGCFyLX7cLo","order":[0,1,2],"calibration_id":"rJYEY9-gf","perdiod":80,"amplitudes":[1,11,24,37,51,63,78,87,82,22,0,0,0,0,0,0,0,8,17,30,44,54,69,89,106,87,17],"collection":"vibration_patterns","_id":"Xm0b8SBjFd2uknok"}
+{"gesture_id":"yjX5V7oiPhk","order":[0,1,2],"calibration_id":"rJYEY9-gf","perdiod":80,"amplitudes":[1,16,32,45,52,57,60,67,69,81,92,101,102,106,101,87,80,65,53,36],"collection":"vibration_patterns","_id":"VUamql9TLJsRZzaR"}
+{"gesture_id":"nMceTIUaZzU","order":[0,1,2],"calibration_id":"rJYEY9-gf","perdiod":80,"amplitudes":[1,12,27,46,63,85,96,80,8,0,0,0,0,0,0,6,16,24,33,44,54,66,96,101,80],"collection":"vibration_patterns","_id":"ptN2DuQstBZ62We5"}
