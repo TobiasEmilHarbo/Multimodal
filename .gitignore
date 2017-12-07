@@ -31,9 +31,6 @@ build/Release
 node_modules
 jspm_packages
 
-# Database
-datastore
-
 # Optional npm cache directory
 .npm
 
