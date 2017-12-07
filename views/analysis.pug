@@ -161,7 +161,7 @@ html
 
 		div(class="dtw-view")
 
-			button(class="generate-dtw") Generate DTW table
+			button(class="generate-dtw") Get DTW table
 
 			table
 
@@ -421,7 +421,7 @@ html
 				const anchor = event.target || event.srcElement;
 
 				var calibrationIds = anchor.getAttribute('data-calibration-ids').split(',');
-				var path = anchor.getAttribute('data-dtw-path').split(',');
+				//- var path = anchor.getAttribute('data-dtw-path').split(',');
 
 				var checkboxes = $('div.toggle-switch-board ul input');
 				
@@ -485,7 +485,7 @@ html
 							$('<a />', {
 								href : '#',
 								'data-calibration-ids' : [data.header[i], data.header[j]],
-								'data-dtw-path'	: data.paths[i][j]
+								//- 'data-dtw-path'	: data.paths[i][j]
 							}).text(dist)
 
 						).appendTo(row);
@@ -496,10 +496,8 @@ html
 
 				table.append(header);
 
-				console.log(max);
-				console.log(min);
 			});
 
-			$('button.create-files-btn').on('click', (e) => {
+			$('button#create-files-btn').on('click', (e) => {
 				socket.emit(ACTION.CREATE_DATA_FILES);
 			});
